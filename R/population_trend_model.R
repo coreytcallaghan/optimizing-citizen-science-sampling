@@ -104,7 +104,7 @@ model_leverage_predict_function <- function(species) {
     mutate(OBSERVER_ID = as.factor(as.character(.$OBSERVER_ID)))
   
   
-  mod <- glm(occurrence ~  DATE_CONTINUOUS + N + Year + COUNTY, 
+  mod <- glm(occurrence ~  DATE_CONTINUOUS,
              family=binomial(link="logit"), data=mod_data)
   
   newdata <- data.frame(DATE_CONTINUOUS=mod_data$DATE_CONTINUOUS,
