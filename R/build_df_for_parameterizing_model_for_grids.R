@@ -54,50 +54,43 @@ sites_and_grids <- sites %>%
   dplyr::select(-row.id)
 
 
-test <- sydney_grids %>%
-  left_join(., sites_and_grids, by="grid_id") %>%
-  left_join(., GS_observations, by="LOCALITY_ID") %>%
-  group_by(grid_id) %>%
-  summarise(N=length(unique(SAMPLING_EVENT_IDENTIFIER))) 
-
-
-
-
-
 date_specific_summary <- function(forecast_date) {
 
 # do it for a single date first
 dynamic_date <- as.Date(forecast_date)
 
 
-# list of all sampled sites in the dataset
+# list of all potential grids in the dataset
 # all potential sites
-sites <- GS_observations %>%
-  dplyr::select(LOCALITY_ID, LATITUDE, LONGITUDE) %>%
-  distinct()
+grids <- data.frame(grid_id=sydney_grids$grid_id)
 
 # filter to all data at a date
 all_data_sampled <- GS_observations %>%
   dplyr::filter(OBSERVATION_DATE < dynamic_date)
 
 # filter to all sites at a date
-sites_sampled <- all_data_sampled %>%
+grids_sampled <- all_data_sampled %>%
   dplyr::select(LOCALITY_ID) %>%
   distinct() %>%
+  left_join(., sites_and_grids) %>%
+  distinct(grid_id) %>%
   mutate(sampled = "yes")
 
-sampled_or_not <- sites %>%
-  left_join(., sites_sampled, by="LOCALITY_ID") %>%
+sampled_or_not <- grids %>%
+  left_join(., grids_sampled, by="grid_id") %>%
   replace_na(list(sampled="no"))
   
 
 # distance from the nearest sampled site
-unique_sites <- sites %>%
+# first find the nearest neighbor
+# based on each grid's centroid
+unique_grids <- sydney_grids %>%
+  st_set_geometry(NULL) %>%
   mutate(id=1:nrow(.)) %>%
   mutate(id = as.character(as.integer(.$id)))
 
 # use RANN::nn2 to find a matrix of nearest neighbors
-nearest <- nn2(unique_sites[, 2, 3], query=unique_sites[, 2, 3])
+nearest <- nn2(unique_grids[, 2, 3], query=unique_grids[, 2, 3])
 
 # turn the ids into a dataframe and select
 # only the first two variables (the initial id and the closest neighbor)
