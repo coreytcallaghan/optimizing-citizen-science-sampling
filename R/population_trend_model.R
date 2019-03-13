@@ -40,7 +40,13 @@ GS_observations <- GS_observations %>%
   dplyr::filter(family != "Hydrobatidae (Northern Storm-Petrels)") %>%
   dplyr::filter(family != "Procellariidae (Shearwaters and Petrels)") %>%
   dplyr::filter(family != "Fregatidae (Frigatebirds)") %>%
-  dplyr::filter(family != "Sulidae (Boobies and Gannets)")
+  dplyr::filter(family != "Sulidae (Boobies and Gannets)") %>%
+  dplyr::filter(PROTOCOL_TYPE != "Incidental") %>%
+  dplyr::filter(PROTOCOL_TYPE != "Historical") %>%
+  dplyr::filter(PROTOCOL_TYPE != "Nocturnal Flight Call Count") %>%
+  dplyr::filter(PROTOCOL_TYPE != "Banding") %>%
+  dplyr::mutate(hour=hour(TIME_OBSERVATIONS_STARTED)) %>%
+  dplyr::filter(hour >= 5 & hour <= 20)
 
 
 # A list of all sites
@@ -76,7 +82,7 @@ date_sequence <- data.frame(OBSERVATION_DATE = seq.Date(min_date, max_date, by=1
 model_leverage_predict_function <- function(species) {
   
   df <- GS_observations %>%
-    dplyr::filter(SCIENTIFIC_NAME == species) %>%
+    dplyr::filter(COMMON_NAME == species) %>%
     mutate(Year=year(OBSERVATION_DATE)) %>%
     mutate(occurrence = 1) %>%
     left_join(., list_species, by="SAMPLING_EVENT_IDENTIFIER")
@@ -101,16 +107,17 @@ model_leverage_predict_function <- function(species) {
     mutate(Year = as.factor(year(OBSERVATION_DATE))) %>%
     mutate(COUNTY = as.factor(as.character(.$COUNTY))) %>%
     mutate(LOCALITY_ID = as.factor(as.character(.$LOCALITY_ID))) %>%
-    mutate(OBSERVER_ID = as.factor(as.character(.$OBSERVER_ID)))
+    mutate(OBSERVER_ID = as.factor(as.character(.$OBSERVER_ID))) %>%
+    dplyr::filter(N >=4)
   
   
-  mod <- glm(occurrence ~  DATE_CONTINUOUS,
+  mod <- glm(occurrence ~  DATE_CONTINUOUS + N,
              family=binomial(link="logit"), data=mod_data)
   
   newdata <- data.frame(DATE_CONTINUOUS=mod_data$DATE_CONTINUOUS,
                         N=mean(mod_data$N), COUNTY=mod_data$COUNTY, Year=mod_data$Year)
   
-  leverage_df <- data.frame(mod_data$SAMPLING_EVENT_IDENTIFIER,
+  leverage_df <- data.frame(SAMPLING_EVENT_IDENTIFIER=mod_data$SAMPLING_EVENT_IDENTIFIER,
                             leverage=cooks.distance(mod),
                             DATE_CONTINUOUS=mod_data$DATE_CONTINUOUS,
                             N=mean(mod_data$N),
@@ -133,25 +140,23 @@ list_of_species <- species_N %>%
   dplyr::filter(N>20) %>%
   .$COMMON_NAME
 
+
+
 list_of_model_results <- lapply(list_of_species, function(x) {model_leverage_predict_function(x)})
 
 
 df_of_model_results <- bind_rows(list_of_model_results)
 
 leverage_for_each_checklist <- df_of_model_results %>%
-  dplyr::select(mod_data.SAMPLING_EVENT_IDENTIFIER, leverage, SCIENTIFIC_NAME) %>%
-  spread(SCIENTIFIC_NAME, leverage)
-
-list_leverage <- data.frame(SAMPLING_EVENT_IDENTIFIER=leverage_for_each_checklist$mod_data.SAMPLING_EVENT_IDENTIFIER,
-                            mean_leverage=rowMeans(leverage_for_each_checklist[,-1]))
-
+  group_by(SAMPLING_EVENT_IDENTIFIER) %>%
+  summarise(leverage=mean(leverage))
 
 leverage_results <- GS_observations %>%
   dplyr::select(SAMPLING_EVENT_IDENTIFIER, OBSERVATION_DATE, LOCALITY_ID,
                 COUNTY, LOCALITY_TYPE, PROTOCOL_TYPE, PROTOCOL_CODE,
                 DURATION_MINUTES, EFFORT_DISTANCE_KM, OBSERVER_ID) %>%
   distinct() %>%
-  left_join(., list_leverage, by="SAMPLING_EVENT_IDENTIFIER")
+  left_join(., leverage_for_each_checklist, by="SAMPLING_EVENT_IDENTIFIER")
 
 
 
