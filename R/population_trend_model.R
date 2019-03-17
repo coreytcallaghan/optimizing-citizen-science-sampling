@@ -111,20 +111,24 @@ model_leverage_predict_function <- function(species) {
     dplyr::filter(N >=4)
   
   
-  mod <- glm(occurrence ~  DATE_CONTINUOUS + N,
+  mod <- glm(occurrence ~  DATE_CONTINUOUS + COUNTY + offset(N),
              family=binomial(link="logit"), data=mod_data)
   
-  newdata <- data.frame(DATE_CONTINUOUS=mod_data$DATE_CONTINUOUS,
-                        N=mean(mod_data$N), COUNTY=mod_data$COUNTY, Year=mod_data$Year)
+  infl.mod <- influence(mod)
+  
+  dfbetas.mod <- dfbetas(mod, infl=infl.mod)
+  
+  DATE_betas <- as.data.frame(dfbetas.mod) %>%
+    dplyr::select(DATE_CONTINUOUS)
   
   leverage_df <- data.frame(SAMPLING_EVENT_IDENTIFIER=mod_data$SAMPLING_EVENT_IDENTIFIER,
-                            leverage=cooks.distance(mod),
+                            cooks_dist=cooks.distance(mod),
+                            DATE_dfbetas=DATE_betas$DATE_CONTINUOUS,
                             DATE_CONTINUOUS=mod_data$DATE_CONTINUOUS,
                             N=mean(mod_data$N),
                             COUNTY=mod_data$COUNTY,
-                            Year=mod_data$Year,
-                            predicted_data=predict(mod, newdata, type="response")) %>%
-    mutate(SCIENTIFIC_NAME = species)
+                            Year=mod_data$Year) %>%
+    mutate(COMMON_NAME = species)
   
   return(leverage_df)
 }
