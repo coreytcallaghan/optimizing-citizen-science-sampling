@@ -7,7 +7,7 @@ library(tidyr)
 library(lubridate)
 
 # load data
-analysis_data <- readRDS("Data/Modelling data/analysis_data.RData")
+analysis_data <- readRDS("Data/Modelling data/analysis_data.RDS")
 
 load("Data/Spatial data/sydney_grids.RData")
 
@@ -30,7 +30,7 @@ sydney_grids %>%
   ggplot()+
   geom_sf(aes(fill=value))+
   facet_wrap(~summary)+
-  theme_classi
+  theme_classic()
   
 
 sydney_grids %>%
