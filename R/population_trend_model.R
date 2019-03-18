@@ -153,7 +153,8 @@ df_of_model_results <- bind_rows(list_of_model_results)
 
 leverage_for_each_checklist <- df_of_model_results %>%
   group_by(SAMPLING_EVENT_IDENTIFIER) %>%
-  summarise(leverage=mean(leverage))
+  summarise(cooks_dist=mean(cooks_dist),
+            DATE_dfbetas=mean(DATE_dfbetas))
 
 leverage_results <- GS_observations %>%
   dplyr::select(SAMPLING_EVENT_IDENTIFIER, OBSERVATION_DATE, LOCALITY_ID,
@@ -163,7 +164,7 @@ leverage_results <- GS_observations %>%
   left_join(., leverage_for_each_checklist, by="SAMPLING_EVENT_IDENTIFIER")
 
 
-
+saveRDS(leverage_results, file = "Data/leverage_results.RDS")
 ####################################################################################
 
 
