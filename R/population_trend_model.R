@@ -146,7 +146,7 @@ list_of_species <- species_N %>%
 
 
 
-list_of_model_results <- lapply(list_of_species, function(x) {model_leverage_predict_function(x)})
+list_of_model_results <- parallel::mclapply(list_of_species, function(x) {model_leverage_predict_function(x)})
 
 
 df_of_model_results <- bind_rows(list_of_model_results)
@@ -163,9 +163,16 @@ leverage_results <- GS_observations %>%
   distinct() %>%
   left_join(., leverage_for_each_checklist, by="SAMPLING_EVENT_IDENTIFIER")
 
+leverage_results %>%
+  arrange(desc(leverage)) -> leverage_results
+
 
 saveRDS(leverage_results, file = "Data/leverage_results.RDS")
-####################################################################################
+
+filter(GS_observations,SAMPLING_EVENT_IDENTIFIER==leverage_results$SAMPLING_EVENT_IDENTIFIER[1]) -> best
+
+filter(df_of_model_results,SAMPLING_EVENT_IDENTIFIER==leverage_results$SAMPLING_EVENT_IDENTIFIER[1]) -> best
+
 
 
 
@@ -225,8 +232,24 @@ cooks.distance(mod)
 
 
 
+library(raster)
+r1 <- raster(nrows=40, ncols=60, xmn=min(checks$long), xmx=max(checks$long),ymn=min(checks$lat),ymx=max(checks$lat))
 
+?rasterize
+GS_observations %>% group_by(SAMPLING_EVENT_IDENTIFIER) %>%
+  summarise(lat=median(LATITUDE),long=median(LONGITUDE)) %>%
+  left_join(leverage_for_each_checklist)-> checks
 
+checks<-filter(checks,!is.na(leverage))
 
+xy <- cbind(checks$long, checks$lat)
 
+rr<-rasterize(xy,r1,field=log10(checks$leverage))
+plot(rr)
 
+theme_set(theme_bw())
+library(rasterVis)
+library(viridis)
+gplot(rr) + geom_tile(aes(fill = value)) +
+  scale_fill_viridis()+
+  coord_equal()
