@@ -81,6 +81,8 @@ date_sequence <- data.frame(OBSERVATION_DATE = seq.Date(min_date, max_date, by=1
 # get a model to run for each species in the dataset
 model_leverage_predict_function <- function(species) {
   
+  message(paste0("Analyzing ", species))
+  
   df <- GS_observations %>%
     dplyr::filter(COMMON_NAME == species) %>%
     mutate(Year=year(OBSERVATION_DATE)) %>%

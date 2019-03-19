@@ -18,7 +18,7 @@ sites_grids_lookup <- readRDS("Data/sites_and_grids_lookup.RDS")
 # make df for modelling
 hist(analysis_data$DATE_dfbetas, breaks=30)
 
-hist(log(analysis_data$DATE_dfbetas), breaks=30)
+hist(log(abs(analysis_data$DATE_dfbetas)), breaks=30)
   
 # try a linear model first
 # no transform
@@ -31,7 +31,7 @@ summary(mod)
 
 # doesn't look good!
 # try a log-transform of response
-mod2 <- lm(log(DATE_dfbetas) ~ norm.distance_sample + norm.days_since + norm.m_w_t_n_n + norm.m_w_t, data=analysis_data)
+mod2 <- lm(log(abs(DATE_dfbetas)) ~ norm.distance_sample + norm.days_since + norm.m_w_t_n_n + norm.m_w_t, data=analysis_data)
 
 par(mfrow=c(2, 2))
 plot(mod2)
