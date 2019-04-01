@@ -4,6 +4,8 @@
 library(dplyr)
 library(ggplot2)
 library(BBmisc)
+library(ggcorrplot)
+library(corrplot)
 
 
 # load data
@@ -19,6 +21,10 @@ sites_grids_lookup <- readRDS("Data/sites_and_grids_lookup.RDS")
 hist(analysis_data$DATE_dfbetas, breaks=30)
 
 hist(log(analysis_data$DATE_dfbetas), breaks=30)
+
+# look at correlation among predictor variables
+cor_object <- cor(analysis_data[14:17])
+ggcorrplot(cor_object)
   
 # try a linear model first
 # no transform
@@ -39,6 +45,13 @@ plot(mod2)
 summary(mod2)
 
 
+# try a glm?
+mod3 <- glm(DATE_dfbetas ~ norm.distance_sample + norm.days_since + norm.m_w_t_n_n + norm.m_w_t, 
+            family  = Gamma(link = "log"),
+            data=analysis_data)
 
+par(mfrow=c(2, 2))
+plot(mod3)
 
+summary(mod3)
 
