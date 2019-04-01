@@ -46,7 +46,11 @@ GS_observations <- GS_observations %>%
   dplyr::filter(PROTOCOL_TYPE != "Nocturnal Flight Call Count") %>%
   dplyr::filter(PROTOCOL_TYPE != "Banding") %>%
   dplyr::mutate(hour=hour(TIME_OBSERVATIONS_STARTED)) %>%
-  dplyr::filter(hour >= 5 & hour <= 20)
+  dplyr::filter(hour >= 5 & hour <= 20) %>%
+  dplyr::filter(DURATION_MINUTES >= 5) %>%
+  dplyr::filter(DURATION_MINUTES <= 240) %>%
+  dplyr::filter(EFFORT_DISTANCE_KM <= 5) %>%
+  dplyr::filter(EFFORT_AREA_HA <= 500)
 
 
 # A list of all sites
@@ -57,7 +61,7 @@ localities <- GS_observations %>%
 # Number of species on a list
 list_species <- GS_observations %>%
   group_by(SAMPLING_EVENT_IDENTIFIER) %>%
-  summarise(N=length(unique(SCIENTIFIC_NAME)))
+  summarise(Number_species=length(unique(SCIENTIFIC_NAME)))
 
 # all checklists and their dates
 checklists_dates <- GS_observations %>%
@@ -110,10 +114,10 @@ model_leverage_predict_function <- function(species) {
     mutate(COUNTY = as.factor(as.character(.$COUNTY))) %>%
     mutate(LOCALITY_ID = as.factor(as.character(.$LOCALITY_ID))) %>%
     mutate(OBSERVER_ID = as.factor(as.character(.$OBSERVER_ID))) %>%
-    dplyr::filter(N >=4)
+    dplyr::filter(Number_species >=4)
   
   
-  mod <- glm(occurrence ~  DATE_CONTINUOUS + COUNTY + offset(N),
+  mod <- glm(occurrence ~  DATE_CONTINUOUS + COUNTY + offset(Number_species),
              family=binomial(link="logit"), data=mod_data)
   
   infl.mod <- influence(mod)
@@ -127,7 +131,7 @@ model_leverage_predict_function <- function(species) {
                             cooks_dist=cooks.distance(mod),
                             DATE_dfbetas=DATE_betas$DATE_CONTINUOUS,
                             DATE_CONTINUOUS=mod_data$DATE_CONTINUOUS,
-                            N=mean(mod_data$N),
+                            Number_species=mod_data$Number_species,
                             COUNTY=mod_data$COUNTY,
                             Year=mod_data$Year) %>%
     mutate(COMMON_NAME = species)
@@ -143,7 +147,7 @@ species_N <- GS_observations %>%
 
 
 list_of_species <- species_N %>%
-  dplyr::filter(N>20) %>%
+  dplyr::filter(N>50) %>%
   .$COMMON_NAME
 
 
