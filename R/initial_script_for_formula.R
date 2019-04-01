@@ -12,6 +12,7 @@ library(sf)
 library(data.table)
 library(geosphere)
 library(BBmisc)
+library(RANN)
 
 # read data in
 load("Data/Sampling data/NSW_birds.RData")
