@@ -1,45 +1,76 @@
 # create a raster of the study area
 
 library(sf)
-library(raster)
+library(dplyr)
+
 
 # load shapefile
-sydney <- st_read("Data/Spatial data/greater_sydney_shape/sydney.shp")
+sydney <- st_read("Data/Spatial data/greater_sydney_shape/sydney.shp") %>%
+  st_transform(32756)
 
 
-# create raster
-r1 <- raster(nrows=50, ncols=50, xmn=149.9719, xmx=151.6305, ymn=-34.33117, ymx=-32.99607)
+# function to make a grid over Sydney region
+# grid size is defined in meters
+get_gridded_region_function <- function(grid_size) {
+  
+  sydney_grids <- sydney %>%
+    st_make_grid(., cellsize=c(grid_size, grid_size),
+                 crs=32756, what='polygons') %>%
+    st_intersection(sydney) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(id = row_number())
+  
+  
+  centroids <- st_centroid(sydney_grids)
+  centroids <- st_transform(centroids, 4326)
+  sydney_grids <- st_transform(sydney_grids, 4326)
+  
+  coords <- do.call(rbind, st_geometry(centroids)) %>%
+    as_tibble() %>%
+    setNames(c("lon", "lat"))
+  
+  sydney_grids <- bind_cols(sydney_grids, coords) %>%
+    rename(grid_id = id)
+  
+  return(sydney_grids)
+  
+}
+
+# 50 km grids
+sydney_grids_50_km <- get_gridded_region_function(grid_size=50000)
+
+save(sydney_grids_50_km, file = "Data/Spatial data/sydney_grids_50_km.RData")
 
 
-sydney_raster <- rasterize(sydney, r1)
+# 25 km grids
+sydney_grids_25_km <- get_gridded_region_function(grid_size=25000)
+
+save(sydney_grids_25_km, file = "Data/Spatial data/sydney_grids_25_km.RData")
 
 
+# 10 km grids
+sydney_grids_10_km <- get_gridded_region_function(grid_size=10000)
+
+save(sydney_grids_10_km, file = "Data/Spatial data/sydney_grids_10_km.RData")
 
 
-# here is just a grid which stays as sf object - should work okay?
-sydney_grids <- sydney %>%
-  st_make_grid(n=c(25, 25)) %>%
-  st_intersection(sydney) %>%
-  st_cast("MULTIPOLYGON") %>%
-  st_sf() %>%
-  mutate(id = row_number()) %>%
-  mutate(centroid=st_centroid())
+# 5 km grids
+sydney_grids_5_km <- get_gridded_region_function(grid_size=5000)
+
+save(sydney_grids_5_km, file = "Data/Spatial data/sydney_grids_5_km.RData")
 
 
-centroids <- st_centroid(sydney_grids)
+# 2 km grids
+sydney_grids_2_km <- get_gridded_region_function(grid_size=2000)
+
+save(sydney_grids_2_km, file = "Data/Spatial data/sydney_grids_2_km.RData")
 
 
-coords <- do.call(rbind, st_geometry(centroids)) %>%
-  as_tibble() %>%
-  setNames(c("lon", "lat"))
+# 1 km grids
+sydney_grids_1_km <- get_gridded_region_function(grid_size=1000)
 
-sydney_grids <- bind_cols(sydney_grids, coords)
-
-
-save(sydney_grids, file = "Data/Spatial data/sydney_grids.RData")
-
-
-
+save(sydney_grids_1_km, file = "Data/Spatial data/sydney_grids_1_km.RData")
 
 
 
