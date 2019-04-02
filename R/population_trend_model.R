@@ -160,14 +160,15 @@ df_of_model_results <- bind_rows(list_of_model_results)
 leverage_for_each_checklist <- df_of_model_results %>%
   group_by(SAMPLING_EVENT_IDENTIFIER) %>%
   summarise(cooks_dist=mean(cooks_dist),
-            DATE_dfbetas=sum(abs(DATE_dfbetas)))
+            DATE_dfbetas=sum(abs(DATE_dfbetas)),
+            Number_species=mean(Number_species))
 
 leverage_results <- GS_observations %>%
-  dplyr::select(SAMPLING_EVENT_IDENTIFIER, OBSERVATION_DATE, LOCALITY_ID,
+  dplyr::select(SAMPLING_EVENT_IDENTIFIER, OBSERVATION_DATE, TIME_OBSERVATIONS_STARTED, LOCALITY_ID,
                 COUNTY, LOCALITY_TYPE, PROTOCOL_TYPE, PROTOCOL_CODE,
                 DURATION_MINUTES, EFFORT_DISTANCE_KM, OBSERVER_ID) %>%
   distinct() %>%
-  left_join(., leverage_for_each_checklist, by="SAMPLING_EVENT_IDENTIFIER")
+  right_join(., leverage_for_each_checklist, by="SAMPLING_EVENT_IDENTIFIER")
 
 leverage_results %>%
   arrange(desc(DATE_dfbetas)) -> leverage_results
