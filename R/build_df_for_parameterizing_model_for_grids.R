@@ -51,27 +51,6 @@ crs <- 4326
 sites_sf <- st_as_sf(sites, coords = c("LONGITUDE", "LATITUDE"), 
                       crs = crs, agr = "constant")
 
-# use intersect to return a list of points and the associated
-# polygon they belong to - uses integer ids for rows and columns
-# note that it looks like 29 points aren't assigned to a LGA
-# not worried about this for now, but something to come back to in the future
-assigned_points <- as.data.frame(st_intersects(sites_sf, sydney_grids_10_km))
-
-# join the original dataframe with the intersected df
-# then remove the row and col ids
-# provides a lookup table
-# joining locality_id and grid_id
-sites_and_grids <- sites %>%
-  mutate(row.id = 1:nrow(.)) %>%
-  left_join(assigned_points, by="row.id") %>%
-  rename(grid_id = col.id) %>%
-  dplyr::select(-row.id)
-
-# get a dataframe of unique grids
-unique_grids <- sydney_grids_10_km %>%
-  st_set_geometry(NULL) %>%
-  mutate(id=1:nrow(.)) %>%
-  mutate(id = as.character(as.integer(.$id)))
 
 date_specific_summary <- function(forecast_date, dataset, grid_size) {
 
@@ -264,6 +243,7 @@ days_since_last_sample <- all_data_sampled %>%
   dplyr::select(LOCALITY_ID, OBSERVATION_DATE) %>%
   distinct() %>%
   left_join(., sites_and_grids, by="LOCALITY_ID") %>%
+  group_by(grid_id) %>%
   distinct(OBSERVATION_DATE, .keep_all=TRUE) %>%
   group_by(grid_id) %>%
   arrange(desc(OBSERVATION_DATE)) %>%
