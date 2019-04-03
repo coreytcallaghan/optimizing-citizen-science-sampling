@@ -37,7 +37,7 @@ summary(mod)
 
 # doesn't look good!
 # try a log-transform of response
-mod2 <- lm(log(DATE_dfbetas+0.001) ~ norm.distance_sample + norm.days_since + norm.m_w_t_n_n + norm.m_w_t, data=analysis_data)
+mod2 <- lm(log(DATE_dfbetas) ~ norm.distance_sample + norm.days_since + norm.m_w_t_n_n + norm.m_w_t, data=analysis_data)
 
 par(mfrow=c(2, 2))
 plot(mod2)
