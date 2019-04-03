@@ -174,7 +174,7 @@ leverage_results %>%
   arrange(desc(DATE_dfbetas)) -> leverage_results
 
 
-saveRDS(leverage_results, file = "Data/leverage_results.RDS")
+saveRDS(leverage_results, file = "Data/Modelling data/leverage_results.RDS")
 
 filter(GS_observations,SAMPLING_EVENT_IDENTIFIER==leverage_results$SAMPLING_EVENT_IDENTIFIER[1]) -> best
 
