@@ -25,7 +25,12 @@ load("Data/Greater_Sydney_data.RData")
 
 load("Data/Sampling data/NSW_birds.RData")
 
-load("Data/Spatial data/sydney_grids.RData")
+load("Data/Spatial data/sydney_grids_1_km.RData")
+load("Data/Spatial data/sydney_grids_2_km.RData")
+load("Data/Spatial data/sydney_grids_5_km.RData")
+load("Data/Spatial data/sydney_grids_10_km.RData")
+load("Data/Spatial data/sydney_grids_25_km.RData")
+load("Data/Spatial data/sydney_grids_50_km.RData")
 
 
 
@@ -33,18 +38,15 @@ load("Data/Spatial data/sydney_grids.RData")
 # a grid cell throughout Sydney
 # will be necessary for merging back later
 # because the calculations will be on a grid scale
-sydney_grids <- sydney_grids %>%
-  rename(grid_id = id)
-
 # get list of unique sites (LOCALITY_ID)
 sites <- GS_observations %>%
   dplyr::select(LOCALITY_ID, LATITUDE, LONGITUDE) %>%
   distinct()
 
 
-# convert points from FrogID into sf points
+# convert points into sf points
 # so that they can be used with the polygons
-crs <- "+proj=longlat +ellps=GRS80 +no_defs"
+crs <- 4326
 
 sites_sf <- st_as_sf(sites, coords = c("LONGITUDE", "LATITUDE"), 
                       crs = crs, agr = "constant")
@@ -53,7 +55,7 @@ sites_sf <- st_as_sf(sites, coords = c("LONGITUDE", "LATITUDE"),
 # polygon they belong to - uses integer ids for rows and columns
 # note that it looks like 29 points aren't assigned to a LGA
 # not worried about this for now, but something to come back to in the future
-assigned_points <- as.data.frame(st_intersects(sites_sf, sydney_grids))
+assigned_points <- as.data.frame(st_intersects(sites_sf, sydney_grids_10_km))
 
 # join the original dataframe with the intersected df
 # then remove the row and col ids
@@ -66,20 +68,43 @@ sites_and_grids <- sites %>%
   dplyr::select(-row.id)
 
 # get a dataframe of unique grids
-unique_grids <- sydney_grids %>%
+unique_grids <- sydney_grids_10_km %>%
   st_set_geometry(NULL) %>%
   mutate(id=1:nrow(.)) %>%
   mutate(id = as.character(as.integer(.$id)))
 
-date_specific_summary <- function(forecast_date) {
+date_specific_summary <- function(forecast_date, dataset, grid_size) {
 
+  
+# use intersect to return a list of points and the associated
+# polygon they belong to - uses integer ids for rows and columns
+assigned_points <- as.data.frame(st_intersects(sites_sf, dataset))
+
+# join the original dataframe with the intersected df
+# then remove the row and col ids
+# provides a lookup table
+# joining locality_id and grid_id
+sites_and_grids <- sites %>%
+  mutate(row.id = 1:nrow(.)) %>%
+  left_join(assigned_points, by="row.id") %>%
+  rename(grid_id = col.id) %>%
+  dplyr::select(-row.id)
+  
+# get a dataframe of unique grids
+unique_grids <- dataset %>%
+  st_set_geometry(NULL) %>%
+  mutate(id=1:nrow(.)) %>%
+  mutate(id = as.character(as.integer(.$id)))  
+
+  
+  
 # ensure the date is being treated as a date object
 # necessary for filtering later on
 dynamic_date <- as.Date(forecast_date)
 
 # list of all potential grids in the dataset
 # all potential sites
-grids <- data.frame(grid_id=sydney_grids$grid_id)
+grids <- data.frame(grid_id=dataset$grid_id)
 
 # filter to all data at a date
 # this cuts the entire dataset off to whatever
@@ -96,7 +121,7 @@ grids_sampled <- all_data_sampled %>%
   distinct(grid_id) %>%
   mutate(sampled = "yes")
 
-# a list of all grids and whether they have been seampled up until that date
+# a list of all grids and whether they have been sampled up until that date
 sampled_or_not <- grids %>%
   left_join(., grids_sampled, by="grid_id") %>%
   replace_na(list(sampled="no"))
@@ -114,19 +139,19 @@ sampled_grids <- grids_sampled$grid_id
 
 # convert grid centroids to a sf object
 grids_sampled_sf <- unique_grids %>%
-  st_as_sf(coords=c("lon", "lat"), crs=st_crs(sydney_grids))
+  st_as_sf(coords=c("lon", "lat"), crs=st_crs(dataset))
 
 # subsample the gridded map of sydney
 # to those grids which have been sampled
-sydney_grids2 <- sydney_grids %>%
+dataset.2 <- dataset %>%
   dplyr::filter(grid_id %in% sampled_grids)
 
 # use the st_nn function from nngeo
 # to find the nearest neighbor for a sampled grid
-nearest_df_sampled <- as.data.frame(t(as.data.frame(st_nn(grids_sampled_sf, sydney_grids2, k=2))))
+nearest_df_sampled <- as.data.frame(t(as.data.frame(st_nn(grids_sampled_sf, dataset.2, k=2))))
 
 # id lookup
-id_lookup <- sydney_grids2 %>%
+id_lookup <- dataset.2 %>%
   st_set_geometry(NULL) %>%
   dplyr::select(grid_id) %>%
   mutate(id_lookup=1:nrow(.)) %>%
@@ -179,10 +204,11 @@ get_median_and_duration <- function(grid) {
   # and then build a dataframe
   # that calculation will be built upon
   df <- all_data_sampled %>%
-    dplyr::select(LOCALITY_ID, OBSERVATION_DATE, SAMPLING_EVENT_IDENTIFIER) %>%
+    dplyr::select(LOCALITY_ID, OBSERVATION_DATE) %>%
     distinct() %>%
-    left_join(., sites_and_grids) %>%
+    left_join(., sites_and_grids, by="LOCALITY_ID") %>%
     dplyr::filter(grid_id == grid) %>%
+    distinct(OBSERVATION_DATE, .keep_all = TRUE) %>%
     arrange(OBSERVATION_DATE) %>%
     mutate(last_sample_date = c(.$OBSERVATION_DATE[1], .$OBSERVATION_DATE[1:(length(.$OBSERVATION_DATE)-1)])) %>%
     mutate(waiting_days = OBSERVATION_DATE - last_sample_date) %>%
@@ -193,7 +219,7 @@ get_median_and_duration <- function(grid) {
   df$waiting_days[1] <- NA
   # force all '0's to 0.1 as we want the median waiting time to
   # be a positive number (I think)
-  df[df == 0] <- 0.1
+  #df[df == 0] <- 0.1
   
   # create dataframe
   grid_median <- data.frame(grid_id = grid,
@@ -207,7 +233,7 @@ get_median_and_duration <- function(grid) {
 }
 
 # now apply the function over the list of
-# grid is in the df
+# grid ids in the df
 # but note that we will remove any localities
 # that have only 1 checklist
 # so will have to bring those back after
@@ -215,8 +241,9 @@ get_median_and_duration <- function(grid) {
 N <- all_data_sampled %>%
   dplyr::select(LOCALITY_ID, OBSERVATION_DATE) %>%
   distinct() %>%
-  left_join(., sites_and_grids) %>%
+  left_join(., sites_and_grids, by="LOCALITY_ID") %>%
   group_by(grid_id) %>%
+  distinct(OBSERVATION_DATE, .keep_all=TRUE) %>%
   summarise(N=length(unique(OBSERVATION_DATE))) %>%
   mutate(grid_id = as.character(as.integer(.$grid_id)))
 
@@ -236,7 +263,8 @@ median_and_duration <- bind_rows(list_of_results) %>%
 days_since_last_sample <- all_data_sampled %>%
   dplyr::select(LOCALITY_ID, OBSERVATION_DATE) %>%
   distinct() %>%
-  left_join(., sites_and_grids) %>%
+  left_join(., sites_and_grids, by="LOCALITY_ID") %>%
+  distinct(OBSERVATION_DATE, .keep_all=TRUE) %>%
   group_by(grid_id) %>%
   arrange(desc(OBSERVATION_DATE)) %>%
   slice(1) %>%
@@ -258,7 +286,8 @@ summary_df <- sampled_or_not %>%
   mutate(grid_id = as.integer(as.character(.$grid_id))) %>%
   left_join(., days_since_last_sample, by="grid_id") %>%
   left_join(., nearest_df_sampled2, by="grid_id") %>%
-  dplyr::select(-grid_lon, -grid_lat, -nn_lon, -nn_lat)
+  dplyr::select(-grid_lon, -grid_lat, -nn_lon, -nn_lat) %>%
+  rename(Number_of_days_sampled = N)
   
 
 # add neighbor_median_waiting_time
@@ -273,12 +302,12 @@ neighbor_waiting <- summary_df %>%
 # make them a constant (1 sd above the mean)
 summary_df <- summary_df %>%
   left_join(., neighbor_waiting, by="nn") %>%
-  mutate(dynamic_date = dynamic_date) %>%
-  replace_na(list(median_waiting_time=max(.$median_waiting_time, na.rm=TRUE)+(1*sd(.$median_waiting_time, na.rm=TRUE))))%>%
-  replace_na(list(N=0)) %>%
-  replace_na(list(days_since=max(.$days_since, na.rm=TRUE)+(1*sd(.$days_since, na.rm=TRUE)))) %>%
-  replace_na(list(neighbor_waiting_time=max(.$neighbor_waiting_time, na.rm=TRUE)+(1*sd(.$neighbor_waiting_time, na.rm=TRUE)))) %>%
-  replace_na(list(duration=max(.$duration, na.rm=TRUE)+(1*sd(.$duration, na.rm=TRUE))))
+  mutate(dynamic_date = dynamic_date) #%>%
+  #replace_na(list(median_waiting_time=max(.$median_waiting_time, na.rm=TRUE)+(1*sd(.$median_waiting_time, na.rm=TRUE))))%>%
+  #replace_na(list(N=0)) %>%
+  #replace_na(list(days_since=max(.$days_since, na.rm=TRUE)+(1*sd(.$days_since, na.rm=TRUE)))) %>%
+  #replace_na(list(neighbor_waiting_time=max(.$neighbor_waiting_time, na.rm=TRUE)+(1*sd(.$neighbor_waiting_time, na.rm=TRUE)))) %>%
+  #replace_na(list(duration=max(.$duration, na.rm=TRUE)+(1*sd(.$duration, na.rm=TRUE))))
 
 # now select all eBird checklists which 
 # were submitted on the day of forecast date
@@ -303,9 +332,7 @@ final_df <- summary_df %>%
   left_join(., sampling, by="grid_id") %>%
   dplyr::select(-year, -month, -day)
 
-saveRDS(final_df, file=paste0("Data/Sampling dates 2018/", dynamic_date, ".RDS"))
-
-return(final_df)
+saveRDS(final_df, file=paste0("Data/Sampling dates 2018/", grid_size, " km/", dynamic_date, ".RDS"))
 
 }
 
@@ -316,7 +343,11 @@ return(final_df)
 dates_2018 <- seq.Date(as.Date("2018-01-01"), as.Date("2018-12-31"), by=1)
 
 
-lapply(dates_2018, function(x) {date_specific_summary(x)})
-
+lapply(dates_2018, function(x) {date_specific_summary(x, sydney_grids_50_km, 50)})
+lapply(dates_2018, function(x) {date_specific_summary(x, sydney_grids_25_km, 25)})
+lapply(dates_2018, function(x) {date_specific_summary(x, sydney_grids_10_km, 10)})
+lapply(dates_2018, function(x) {date_specific_summary(x, sydney_grids_5_km, 5)})
+lapply(dates_2018, function(x) {date_specific_summary(x, sydney_grids_2_km, 2)})
+lapply(dates_2018, function(x) {date_specific_summary(x, sydney_grids_1_km, 1)})
 
 
