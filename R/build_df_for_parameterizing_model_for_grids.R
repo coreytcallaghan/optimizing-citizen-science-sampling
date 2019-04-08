@@ -22,9 +22,7 @@ library(nngeo)
 
 # load data
 load("Data/Greater_Sydney_data.RData")
-
 load("Data/Sampling data/NSW_birds.RData")
-
 load("Data/Spatial data/sydney_grids_1_km.RData")
 load("Data/Spatial data/sydney_grids_2_km.RData")
 load("Data/Spatial data/sydney_grids_5_km.RData")
