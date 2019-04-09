@@ -138,34 +138,6 @@ NM <- ggplot(data=mod_data, aes(x=OBSERVATION_DATE, y=occurrence))+
   theme(axis.ticks=element_line(color="black"))+
   theme(panel.grid.major.y=element_blank())
 
-date_sequence2 <- date_sequence %>%
-  mutate(Month=month(OBSERVATION_DATE)) %>%
-  mutate(Day=day(OBSERVATION_DATE)) %>%
-  dplyr::filter(Day==1)
-
-
-for (i in unique(as.character(as.Date(date_sequence2$OBSERVATION_DATE)))) {
-  
-  mod_data2 <- mod_data %>%
-    dplyr::filter(OBSERVATION_DATE < i)
-  
-  print(nrow(mod_data2))
-  
-  ggplot(data=mod_data2, aes(x=OBSERVATION_DATE, y=occurrence))+
-    geom_smooth(method="glm", method.args=list(family=binomial(link="logit")), color="red")+
-    ggtitle(paste0(i, ":  N=", nrow(mod_data2), " observations"))+
-    xlab("Date")+
-    ylab("Probability of occurrence")+
-    ylim(0, 1)+
-    theme_bw()+
-    theme(panel.grid.major=element_blank())+
-    theme(panel.grid.minor=element_blank())+
-    theme(axis.text=element_text(color="black"))
-  
-  ggsave(filename = paste0("C:/Users/CTC/Desktop/gif_species/", i, ".png"))
-  
-}
-  
   
 # pick a species
 species <- "Crested Pigeon"
@@ -342,3 +314,98 @@ library(patchwork)
 NM + HH + ML + CP + plot_layout(ncol=2)
 
 ggsave("Figures/glm_examples.png", width=8, height=7, units="in")
+
+
+
+
+
+## Now export some images to make a gif with
+## to show how the standard error can change through time
+
+species <- "Noisy Miner"
+
+df <- GS_observations %>%
+  dplyr::filter(COMMON_NAME == species) %>%
+  mutate(Year=year(OBSERVATION_DATE)) %>%
+  mutate(occurrence = 1) %>%
+  left_join(., list_species, by="SAMPLING_EVENT_IDENTIFIER")
+
+
+species_obs <- df %>%
+  dplyr::select(SAMPLING_EVENT_IDENTIFIER, COMMON_NAME, SCIENTIFIC_NAME, occurrence)
+
+mod_data <- GS_observations %>%
+  dplyr::select(SAMPLING_EVENT_IDENTIFIER, OBSERVATION_DATE, LOCALITY_ID,
+                COUNTY, LOCALITY_TYPE, PROTOCOL_TYPE, PROTOCOL_CODE,
+                DURATION_MINUTES, EFFORT_DISTANCE_KM, OBSERVER_ID) %>%
+  distinct() %>%
+  left_join(., date_sequence, by="OBSERVATION_DATE") %>%
+  left_join(., list_species, by="SAMPLING_EVENT_IDENTIFIER") %>%
+  left_join(., species_obs, by="SAMPLING_EVENT_IDENTIFIER") %>%
+  arrange(desc(occurrence)) %>%
+  tidyr::fill(COMMON_NAME) %>%
+  tidyr::fill(SCIENTIFIC_NAME) %>%
+  replace_na(list(occurrence=0)) %>%
+  mutate(Year = as.factor(year(OBSERVATION_DATE))) %>%
+  mutate(COUNTY = as.factor(as.character(.$COUNTY))) %>%
+  mutate(LOCALITY_ID = as.factor(as.character(.$LOCALITY_ID))) %>%
+  mutate(OBSERVER_ID = as.factor(as.character(.$OBSERVER_ID))) %>%
+  dplyr::filter(N >=4)
+
+
+mod <- glm(occurrence ~  DATE_CONTINUOUS,
+           family=binomial(link="logit"), data=mod_data)
+
+new_dat <- date_sequence$DATE_CONTINUOUS
+
+
+predicted <- data.frame(prob=predict(mod, list(DATE_CONTINUOUS=new_dat), type="response"),
+                        DATE_CONTINUOUS=date_sequence$DATE_CONTINUOUS,
+                        date=date_sequence$OBSERVATION_DATE)
+
+ggplot()+
+  geom_line(data=predicted, aes(x=date, y=prob))
+
+NM <- ggplot(data=mod_data, aes(x=OBSERVATION_DATE, y=occurrence))+
+  geom_smooth(method="glm", method.args=list(family=binomial(link="logit")))+
+  theme_bw()+
+  xlab("")+
+  ylab("Probability of occurrence")+
+  theme(axis.text=element_text(color="black"))+
+  theme(axis.ticks=element_line(color="black"))+
+  theme(panel.grid.major.y=element_blank())
+
+date_sequence2 <- date_sequence %>%
+  mutate(Month=month(OBSERVATION_DATE)) %>%
+  mutate(Day=day(OBSERVATION_DATE)) %>%
+  dplyr::filter(Day==1)
+
+
+for (i in unique(as.character(as.Date(date_sequence2$OBSERVATION_DATE)))) {
+  
+  mod_data2 <- mod_data %>%
+    dplyr::filter(OBSERVATION_DATE < i)
+  
+  print(nrow(mod_data2))
+  
+  ggplot(data=mod_data2, aes(x=OBSERVATION_DATE, y=occurrence))+
+    geom_smooth(method="glm", method.args=list(family=binomial(link="logit")), color="red")+
+    ggtitle(paste0(i, ":  N=", nrow(mod_data2), " observations"))+
+    xlab("Date")+
+    ylab("Probability of occurrence")+
+    ylim(0, 1)+
+    theme_bw()+
+    theme(axis.text=element_text(color="black"))+
+    theme(axis.ticks=element_line(color="black"))+
+    theme(panel.grid.major.y=element_blank())
+  
+  ggsave(filename = paste0("C:/Users/CTC/Desktop/gif_species/", i, ".png"))
+  
+}
+
+
+
+
+
+
+
