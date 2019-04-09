@@ -172,21 +172,32 @@ estimates_50 <- as.data.frame(mod50$coefficients) %>%
   mutate(grid_size=50)
 
 
-
+param_new_names <- data.frame(params=c("(Intercept)", "s.median_waiting_time", "s.days_since", 
+                                       "s.Number_of_days_sampled", "s.dist_km_nn", "s.neighbor_waiting_time"),
+                              new_names=c("Intercept", "Median sampling interval", "Days since last sample", 
+                                          "Number of unique days sampled", "Distance to nearest sampled grid (km)", 
+                                          "Nearest neighbor sampling interval"))
 # plot standardized parameter estimates
 bind_rows(estimates_5, estimates_10, estimates_25, estimates_50) %>%
   mutate(significant=case_when(
     p_value < 0.5 ~ "Significant",
     p_value > 0.5 ~ "Not-significant"
   )) %>%
-  ggplot(., aes(x=params, y=standard_estimate, color=as.character(grid_size), shape=significant))+
+  left_join(., param_new_names, by="params") %>%
+  dplyr::filter(new_names != "Intercept") %>%
+  ggplot(., aes(x=new_names, y=standard_estimate))+
+  geom_hline(yintercept=0, color="red", size=1.2)+
+  geom_errorbar(aes(ymin=lwr_conf, ymax=upr_conf, width=0.3))+
   geom_point()+
-  geom_errorbar(aes(ymin=lwr_conf, ymax=upr_conf))+
+  scale_x_discrete(labels=function(x) stringr::str_wrap(x, width=20))+
   coord_flip()+
+  facet_wrap(~grid_size)+
   theme_bw()+
-  geom_hline(yintercept=0, color="red", size=2)+
   xlab("")+
-  ylab("Standardized parameter estimate")
+  ylab("Standardized parameter estimate")+
+  theme(axis.text=element_text(color="black"))+
+  theme(axis.ticks=element_line(color="black"))+
+  theme(panel.grid.major.y=element_blank())
 
 # explore visreg plots
 par(mfrow=c(2, 2))
