@@ -1,7 +1,7 @@
 \documentclass[9pt,twocolumn,twoside,lineno]{pnas-new}
 % Use the lineno option to display guide line numbers if required.
 
-\templatetype{pnasresearcharticle} % Choose template 
+\templatetype{pnasresearcharticle} % Choose template
 % {pnasresearcharticle} = Template for a two-column research article
 % {pnasmathematics} %= Template for a one-column mathematics article
 % {pnasinvited} %= Template for a PNAS invited submission
@@ -10,7 +10,7 @@
 
 % Use letters for affiliations, numbers to show equal authorship (if applicable) and to indicate the corresponding author
 \author[a,b,1]{Corey T. Callaghan}
-\author[c,]{Alistair G. B. Poore} 
+\author[c,]{Alistair G. B. Poore}
 \author[b,a]{Richard E. Major}
 \author[b,a]{Jodi J. L. Rowley}
 \author[a,c]{William K. Cornwell}
@@ -20,7 +20,7 @@
 \affil[c]{Ecology and Evolution Research Centre, School of Biological, Earth and Environmental Sciences, UNSW Sydney, Sydney, 2052, NSW, Australia}
 
 % Please give the surname of the lead author for the running footer
-\leadauthor{Callaghan} 
+\leadauthor{Callaghan}
 
 % Please add here a significance statement to explain the relevance of your work
 \significancestatement{Citizen scientists are increasingly monitoring biodiversity, but we need to better understand how to optimally sample biodiversity in time and space for intended outcomes, relying on citizen science data.}
@@ -32,10 +32,10 @@
 \correspondingauthor{\textsuperscript{1}To whom correspondence should be addressed. E-mail: c.callaghan@unsw.edu.au}
 
 % Keywords are not mandatory, but authors are strongly encouraged to provide them. If provided, please include two to five keywords, separated by the pipe symbol, e.g:
-\keywords{biodiversity $|$ conservation $|$ citizen science $|$ optimal sampling $|$ eBird} 
+\keywords{biodiversity $|$ conservation $|$ citizen science $|$ optimal sampling $|$ eBird}
 
 \begin{abstract}
-Citizen science is important. yata yata yata
+Citizen science is so so important. yata yata yata
 \end{abstract}
 
 \dates{This manuscript was compiled on \today}
@@ -48,23 +48,75 @@ Citizen science is important. yata yata yata
 \ifthenelse{\boolean{shortarticle}}{\ifthenelse{\boolean{singlecolumn}}{\abscontentformatted}{\abscontent}}{}
 
 % If your first paragraph (i.e. with the \dropcap) contains a list environment (quote, quotation, theorem, definition, enumerate, itemize...), the line after the list may have some extra indentation. If this is the case, add \parshape=0 to the end of the list environment.
-\dropcap{T}
+\dropcap{A}ssessing biodiversity trends in space and time is essential for conservation \cite{harrison2014assessing, wilson2011modelling, mcmahon2011improving, honrado2016fostering} \parshape=0, allowing the tracking of progress, and assessment of whether biodiversity targets are being met. Unsurprisingly, trend detection is best estimated when using data from well-designed surveys in space and time \cite{harrison2014assessing, vellend2017estimates, kery2009trend}, that are long-term \cite{lindenmayer2012value}. But scientific funding for long-term ecological research is rapidly disappearing [REFS???]. Increasingly, government agencies, scientific researchers, and conservationists are turning to citizen science data to help inform the state of biodiversity at local \cite{callaghan2015efficacy, theobald2015global, sullivan2017using, loss2015linking}, regional \cite{barlow2015citizen, fox2011new}, and global scales \cite{chandler2017contribution, pocock2018vision, cooper2014invisible}.
 
-This work is really important \cite{theobald2015global}.
+Citizen science projects fall along a continuum of the level of associated structure \cite{kelling2019using, welvaert2016citizen}, ranging from unstructured (e.g., iNaturalist) to structured (U.K. Butterfly Monitoring Scheme). All citizen science projects have associated biases, including spatial and temporal biases \cite{boakes2010distorted}, and different levels of observers' skills \cite{kelling2015can}. But these biases can generally be accounted for, statistically \cite{isaac2014statistics, robinson2018correcting}, by filtering or subsetting the data \cite{wiggins2011conservation}, pooling multiple data sources \cite{fithian2015bias}, or machine learning and hierarchical clustering techniques \cite{hochachka2012data, kelling2015taking}. Regardless of biases, estimating trends is best done with structured projects \cite{fox2011new}, but unstructured and semistructured projects are increasingly harnessed for trend detection \cite{walker2017using, kery2009trend, @kery2010site, @horns2018using, @van2013occupancy, @pagel2014quantifying}.
+
+The number of ecological and environmental monitoring citizen science projects is increasing \cite{pocock2017diversity, theobald2015global}, highlighting the potential of these data in the future of ecology, conservation, and resource management \cite{pocock2018vision, mckinley2017citizen}. But a major obstacle in the future use of citizen science data remains understanding how to best extract information from 'noisy' citizen science datasets \cite{parrish2018exposing}.
+
+Clearly, citizen science holds great potential for the future of ecology, conservation, and natural resource management \cite{pocock2018vision, silvertown2009new, soroye2018opportunistic, mckinley2017citizen}. But can it be improved? Are there mechanisms which can help diminish the spatial and temporal biases that exist in citizen science projects and associated data?
+
+Here, we investigate these questions, and our objective is to optimize citizen science sampling for trend detection of biodiversity. Many citizen science projects have specific biases and quality concerns. For instance, observer skill \cite{kelling2015can}, time-of-day, number of participants in a group, and technological capabilities of a participant may influence the data collected by some, but not all, citizen science projects. However, generalized across all citizen science projects are spatial and temporal biases \cite{boakes2010distorted}. For instance, biases such as intra-week differences in sampling \cite{courter2013weekend}, sampling near roads and high-density population centers \cite{kelling2015taking}, and XXXX are biases that are generalizable across citizen science projects.
+
+We predicted that the following parameters would be positively associated with the marginal value of a given citizen science observation: whether a site was sampled or not, median sampling interval, days since last sample, distance to the nearest sampled site, nearest neighbor sampling interval, and the number of unique days sampled.
+
+\begin{itemize}
+  \item \textbf{Whether a site was sampled}: if a site had been previously sampled or not.
+  \item \textbf{Median sampling interval}: the median of the distribution of waiting times between samples at a site.
+  \item \textbf{Days since last sample}: the number of days between samples at a site.
+  \item \textbf{Distance to the nearest sampled site}: the distance between the site in question and the nearest sampled site.
+  \item \textbf{Nearest neighbor sampling interval}: the median sampling interval of the nearest neighbor.
+  \item \textbf{Number of unique days sampled}: the total number of unique days sampled for a given site.
+\end{itemize}
+
+Here, we illustrate our vision using a popular citizen science project --- eBird \cite{sullivan2009ebird}.
 
 \section*{Results}
+
+
 \section*{Discussion}
+Citizen science projects need to continuously adapt to be successful, and to better inform conservation science. Even if a project may not have specific objectives/goals, it is important for the project to adapt to particular questions.
+
+The same approach is robust to spatial scale: whether a citizen science project is global, regional, or carried out in the constraints of a local park, the site can be gridded and observations can then be guided into the future.
+
+
+We envision a dynamic approach in the future of citizen science projects, which would ultimately guide participants to sites which \textit{should} be sampled on any given day. For every day, a citizen scientists can be presented with a map, showing the highest valued sites that should be visited. Imagine visitor centers at National Parks and
+
+Feedback to citizen science participants is important! Imagine visitor centers across the world at national parks or urban greenspaces providing users with a localized map showing which trail someone should visit if they are interested in contributing to citizen science. More broadly, this approach could be applied to anyone in the world. The global pull of ecotourism is increasing exponentially, allowing the the potential for people to contribute to local biodiversity knowledge in areas that are traditionally undersampled.
+
+This approach evolves citizen science projects, moving past leaderboards which show the number of species or number of records for a participant, and show the 'value' of a participant's observations.
+
+Here, our framework focused on a specific statistical outcome: trend detection. Many other ecological outcomes arise from citizen science, including species distribution models, phylogeographical research, invasive species detection, or phenological research. These potential outcomes will have different optimal sampling strategies in space and time. We note that our framework is robust, with the necessary piece of information being a statistical model to extract leverage.
 
 
 
-\matmethods{Please describe your materials and methods here. This can be more than one paragraph, and may contain subsections and equations as required. Authors should include a statement in the methods section describing how readers will be able to access the data in the paper. 
+This approach relies on statistical leverage, assigning every citizen science observation a measure of influence that influences a statistical model.
 
-\subsection*{eBird data}
-We used eBird data....
+- Looking forward but using the past
+- We only looked at trend detection, but many other models can be used in this process (e.g., species distribution models)
+- Other potentials for this general approach (identifying outliers in the dataset or misidentified species)
+
+\matmethods{Please describe your materials and methods here. This can be more than one paragraph, and may contain subsections and equations as required. Authors should include a statement in the methods section describing how readers will be able to access the data in the paper.
+
+\subsection*{Study region} We illustrate our concepts throughout the Greater Sydney Region, and we gridded the region into 411 grids, all of which are ~ km. We used the R statistical environment to carry out all analyses.
+
+\subsection*{eBird data} We downloaded the eBird basic dataset (VERSION), and subsetted the data between January 1st, 2010 to December 31st, 2018. eBird collects data in the form of 'checklists' --- a list of all species identified (audibly or visually) for a given spatiotemporal coordinates. eBird relies on an extensive network of regional reviewers who are local experts of the avifauna [REF]
+
+\subsection*{Trend detection model} For illustration purposes, we fitted a simple generalized linear model, based on presence/absence for each of 274 species --- those of which had > 20 observations in the region throughout the study period. The GLM took the form of: XXXXXX. County was included to add a spatial representation throughout the Greater Sydney Region, while we included the length of the list in the model as an offset to account for the effort associated with each individual eBird checklist.
+
+We acknowledge that a number of different models can be fit which assesses trend detection [REFS], and biases can be accounted for in a variety of ways [REFS]. These models were fitted for the period between 2010-2018.
+
+\subsection*{Statistical leverage} Statistical leverage measures the influence of a particular observation on the independent variable [REFS]. In other words, it is a measure of how much an observation influences the results of an observation. In our instance, because we had multiple predictor variables in our GLMs, we used dfBeta as a measure of statistical leverage. dfBeta can be calculated for a given parameter in a regression model.
+
+For each species (N=274) we calculated the dfBeta for each of the 29,055 observations used for each model. Then for every checklist assessed in the model, we took the sum of the absolute value of the dfBetas for that checklist as a measure of a checklist's leverage in understanding species' trends throughout the Greater Sydney Region.
+
+\subsection*{Parameter calculation} For each day in 2018 (N=365), for each grid, we dynamically calculated the following parameters, based on sampling: (1) whether a grid cell was sampled, (2) the distance to the nearest sampled grid cell, (3) the median sampling interval of a grid cell, (4) the median sampling interval of the nearest sampled grid cell, (5) days since the last sample in a grid cell, and (6) the duration of sampling in a grid cell --- most recent sample minus the earliest sampled date. These are some hypothesized parameters which we felt would influence the relative value of a given sampling event.
+
+We then subsetted the leverage calculations (see above) for each of the days in 2018, given we know where people sampled, relative to the parameters for each of the grids. We ran a linear regression to parameterize what parameters had the greatest impact on the leverage of a given observation.
+
+\subsection*{Expected leverage calculation} We XXXXX.
 
 
-\subsection*{Parameter calculation}
-For 2018, we
 }
 
 \showmatmethods{} % Display the Materials and Methods section
