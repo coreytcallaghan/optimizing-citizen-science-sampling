@@ -1,0 +1,79 @@
+\documentclass[9pt,twocolumn,twoside,lineno]{pnas-new}
+% Use the lineno option to display guide line numbers if required.
+
+\templatetype{pnasresearcharticle} % Choose template 
+% {pnasresearcharticle} = Template for a two-column research article
+% {pnasmathematics} %= Template for a one-column mathematics article
+% {pnasinvited} %= Template for a PNAS invited submission
+
+\title{Optimizing biodiversity sampling by citizen scientists}
+
+% Use letters for affiliations, numbers to show equal authorship (if applicable) and to indicate the corresponding author
+\author[a,b,1]{Corey T. Callaghan}
+\author[c,]{Alistair G. B. Poore} 
+\author[b,a]{Richard E. Major}
+\author[b,a]{Jodi J. L. Rowley}
+\author[a,c]{William K. Cornwell}
+
+\affil[a]{Centre for Ecosystem Science, School of Biological, Earth and Environmental Sciences, UNSW Sydney, Sydney, 2052, NSW, Australia}
+\affil[b]{Australian Museum Research Institute, Australian Museum, Sydney, 2000, NSW, Australia}
+\affil[c]{Ecology and Evolution Research Centre, School of Biological, Earth and Environmental Sciences, UNSW Sydney, Sydney, 2052, NSW, Australia}
+
+% Please give the surname of the lead author for the running footer
+\leadauthor{Callaghan} 
+
+% Please add here a significance statement to explain the relevance of your work
+\significancestatement{Citizen scientists are increasingly monitoring biodiversity, but we need to better understand how to optimally sample biodiversity in time and space for intended outcomes, relying on citizen science data.}
+
+% Please include corresponding author, author contribution and author declaration information
+\authorcontributions{Please provide details of author contributions here.}
+\authordeclaration{The authors have no conflict of interest to declare.}
+
+\correspondingauthor{\textsuperscript{1}To whom correspondence should be addressed. E-mail: c.callaghan@unsw.edu.au}
+
+% Keywords are not mandatory, but authors are strongly encouraged to provide them. If provided, please include two to five keywords, separated by the pipe symbol, e.g:
+\keywords{biodiversity $|$ conservation $|$ citizen science $|$ optimal sampling $|$ eBird} 
+
+\begin{abstract}
+Citizen science is important. yata yata yata
+\end{abstract}
+
+\dates{This manuscript was compiled on \today}
+\doi{\url{www.pnas.org/cgi/doi/10.1073/pnas.XXXXXXXXXX}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{firststyle}
+\ifthenelse{\boolean{shortarticle}}{\ifthenelse{\boolean{singlecolumn}}{\abscontentformatted}{\abscontent}}{}
+
+% If your first paragraph (i.e. with the \dropcap) contains a list environment (quote, quotation, theorem, definition, enumerate, itemize...), the line after the list may have some extra indentation. If this is the case, add \parshape=0 to the end of the list environment.
+\dropcap{T}
+
+This work is really important \cite{theobald2015global}.
+
+\section*{Results}
+\section*{Discussion}
+
+
+
+\matmethods{Please describe your materials and methods here. This can be more than one paragraph, and may contain subsections and equations as required. Authors should include a statement in the methods section describing how readers will be able to access the data in the paper. 
+
+\subsection*{eBird data}
+We used eBird data....
+
+
+\subsection*{Parameter calculation}
+For 2018, we
+}
+
+\showmatmethods{} % Display the Materials and Methods section
+
+\acknow{We thank the countless citizen scientists who are contributing data that is continuously increasing our collective knowledge of biodiversity.}
+
+\showacknow{} % Display the acknowledgments section
+
+% Bibliography
+\bibliography{refs}
+
+\end{document}
