@@ -206,11 +206,10 @@ visreg(standard50, "z.days_since")
 
 
 # write out each model object
-save(mod5, file="Data/Modelling data/model_5_km_object.RData")
-save(mod10, file="Data/Modelling data/model_10_km_object.RData")
-save(mod25, file="Data/Modelling data/model_25_km_object.RData")
-save(mod50, file="Data/Modelling data/model_50_km_object.RData")
-
+saveRDS(mod5, file="Data/Modelling data/model_5_km_object.RDS")
+saveRDS(mod10, file="Data/Modelling data/model_10_km_object.RDS")
+saveRDS(mod25, file="Data/Modelling data/model_25_km_object.RDS")
+saveRDS(mod50, file="Data/Modelling data/model_50_km_object.RDS")
 
 
 
