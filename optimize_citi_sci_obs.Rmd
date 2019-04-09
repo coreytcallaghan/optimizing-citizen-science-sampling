@@ -1,0 +1,73 @@
+---
+title: "Optimizing citizen science observation sampling"
+
+
+author: |
+  | Corey T. Callaghan^[Corresponding author: c.callaghan@unsw.edu.au] $^1$, Jodi J. L. Rowley $^1$$^,$$^2$, Richard E. Major $^1$$^,$$^2$, Alistair G. B. Poore $^3$, William K. Cornwell $^1$$^,$$^3$
+  | $^1$Centre for Ecosystem Science, School of Biological, Earth and Environmental Sciences, UNSW Sydney, Sydney, NSW, Australia; $^2$Australian Museum Research Institute, Sydney, NSW, Australia; $^3$Evolution and Ecology Research Centre, School of Biological, Earth and Environmental Sciences, UNSW Sydney, Sydney, NSW, Australia
+date: ""
+output: word_document
+fontsize: 12pt
+link-citations: no
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/plos.csl
+bibliography: references.bib
+---
+
+\newpage
+
+# ABSTRACT
+
+
+*Keywords*: citizen science, biodiversity sampling, spatial sampling, temporal sampling
+
+\newpage
+# Introduction
+Assessing biodiversity trends in space and time is essential for conservation  [@harrison2014assessing; @wilson2011modelling; @mcmahon2011improving; @honrado2016fostering; @dornelas2013quantifying]. Unsurprisingly, trend detection is best estimated when using data from well-designed surveys in space and time [@harrison2014assessing; @vellend2017estimates; @kery2009trend], that are long-term [@lindenmayer2012value]. But scientific funding for long-term ecological research is rapidly disappearing [REFS???]. Increasingly, government agencies, scientific researchers, and conservationists are turning to citizen science data to help inform the state of biodiversity at local [@callaghan2015efficacy; @theobald2015global; @sullivan2017using; @loss2015linking], regional [@barlow2015citizen; @fox2011new], and global scales [@chandler2017contribution; @pocock2018vision; @cooper2014invisible].
+
+Citizen science projects fall along a continuum of the level of associated structure [@kelling2019using; @welvaert2016citizen], ranging from unstructured (e.g., iNaturalist) to structured (U.K. Butterfly Monitoring Scheme). All citizen science projects have associated biases, including spatial and temporal biases [@boakes2010distorted], and different levels of observers' skills [@kelling2015can]. But these biases can generally be accounted for, statistically [@isaac2014statistics; @robinson2018correcting], by filtering or subsetting the data [@wiggins2011conservation], pooling multiple data sources [@fithian2015bias], or machine learning and hierarchical clustering techniques [@hochachka2012data; @kelling2015taking]. Regardless of biases, estimating trends is best done with structured projects [e.g. @fox2011new], but unstructured and semistructured projects are increasingly harnessed for trend detection [@walker2017using; @kery2009trend; @kery2010site; @horns2018using; @van2013occupancy; @pagel2014quantifying].
+
+The number of ecological and environmental monitoring citizen science projects is increasing [@pocock2017diversity; @theobald2015global], highlighting the potential of these data in the future of ecology, conservation, and resource management [@pocock2018vision; @mckinley2017citizen]. But a major obstacle in the future use of citizen science data remains understanding how to best extract information from 'noisy' citizen science datasets [@parrish2018exposing].
+
+Despite the potential of citizen science for the future of conservation ecology [@pocock2018vision; @silvertown2009new; @soroye2018opportunistic], can it be better? Can methods be developed which optimize sampling for the data-collection phase, decreasing the statistical error associated with population trends? We envision a dynamic approach in the future of citizen science projects, which would ultimately guide participants to sites which *should* be sampled on any given day. This approach relies on statistical leverage, assigning every citizen science observation a measure of influence that influences a statistical model. Here, we illustrate our vision using a popular citizen science project --- eBird [@sullivan2009ebird].
+
+# Methods
+## Study region
+We illustrate our concepts throughout the Greater Sydney Region, and we gridded the region into 411 grids, all of which are ~ km. We used the R statistical environment to carry out all analyses.
+
+## eBird data
+We downloaded the eBird basic dataset (VERSION), and subsetted the data between January 1st, 2010 to December 31st, 2018. eBird collects data in the form of 'checklists' --- a list of all species identified (audibly or visually) for a given spatiotemporal coordinates. eBird relies on an extensive network of regional reviewers who are local experts of the avifauna [REF]
+
+## Trend detection
+For illustration purposes, we fitted a simple generalized linear model, based on presence/absence for each of 274 species --- those of which had > 20 observations in the region throughout the study period. The GLM took the form of: XXXXXX. County was included to add a spatial representation throughout the Greater Sydney Region, while we included the length of the list in the model as an offset to account for the effort associated with each individual eBird checklist.
+
+We acknowledge that a number of different models can be fit which assesses trend detection [REFS], and biases can be accounted for in a variety of ways [REFS]. These models were fitted for the period between 2010-2018.
+
+### Statistical leverage
+Statistical leverage measures the influence of a particular observation on the independent variable [REFS]. In other words, it is a measure of how much an observation influences the results of an observation. In our instance, because we had multiple predictor variables in our GLMs, we used dfBeta as a measure of statistical leverage. dfBeta can be calculated for a given parameter in a regression model.
+
+For each species (N=274) we calculated the dfBeta for each of the 29,055 observations used for each model. Then for every checklist assessed in the model, we took the sum of the absolute value of the dfBetas for that checklist as a measure of a checklist's leverage in understanding species' trends throughout the Greater Sydney Region.
+
+## Parameter estimation
+For each day in 2018 (N=365), for each grid, we dynamically calculated the following parameters, based on sampling: (1) whether a grid cell was sampled, (2) the distance to the nearest sampled grid cell, (3) the median sampling interval of a grid cell, (4) the median sampling interval of the nearest sampled grid cell, (5) days since the last sample in a grid cell, and (6) the duration of sampling in a grid cell --- most recent sample minus the earliest sampled date. These are some hypothesized parameters which we felt would influence the relative value of a given sampling event.
+
+We then subsetted the leverage calculations (see above) for each of the days in 2018, given we know where people sampled, relative to the parameters for each of the grids. We ran a linear regression to parameterize what parameters had the greatest impact on the leverage of a given observation.
+
+## Calculating expected leverage
+
+# Results
+A total of XXX observations (i.e., eBird checklists) were used to produce trend estimates for each of XXX species.
+
+
+
+
+# Discussion
+- Looking forward but using the past
+- We only looked at trend detection, but many other models can be used in this process (e.g., species distribution models)
+- Other potentials for this general approach (identifying outliers in the dataset or misidentified species)
+
+
+
+
+
+\newpage
+# References
