@@ -44,10 +44,10 @@ add_dfbeta <- function(grid_size, date){
 dates_2018 <- seq.Date(as.Date("2018-01-01"), as.Date("2018-12-31"), by=1)
 
 
-lapply(dates_2018, function(x) {add_dfbeta(x, 5)})
-lapply(dates_2018, function(x) {add_dfbeta(x, 10)})
-lapply(dates_2018, function(x) {add_dfbeta(x, 25)})
-lapply(dates_2018, function(x) {add_dfbeta(x, 50)})
+lapply(dates_2018, function(x) {add_dfbeta(5, x)})
+lapply(dates_2018, function(x) {add_dfbeta(10, x)})
+lapply(dates_2018, function(x) {add_dfbeta(25, x)})
+lapply(dates_2018, function(x) {add_dfbeta(50, x)})
 
 
 
