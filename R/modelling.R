@@ -199,6 +199,9 @@ bind_rows(estimates_5, estimates_10, estimates_25, estimates_50) %>%
   theme(axis.ticks=element_line(color="black"))+
   theme(panel.grid.major.y=element_blank())
 
+
+ggsave(filename="Figures/param_estimates.png", width=6, height=5, units="in")
+
 # explore visreg plots
 par(mfrow=c(2, 2))
 visreg(standard5, "z.median_waiting_time")
