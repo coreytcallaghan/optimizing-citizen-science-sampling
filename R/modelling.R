@@ -25,20 +25,28 @@ analysis_data <- params %>%
     sampled=="no" ~ 0)
     )
 
+
 # make df for modelling
-hist(analysis_data$DATE_dfbetas, breaks=30)
-
-hist(log(analysis_data$DATE_dfbetas), breaks=30)
-
 # rescale variables
 analysis_data <- analysis_data %>%
+  mutate(dist_km_nn=replace(dist_km_nn, dist_km_nn==0, 0.01)) %>%
   group_by(grid_size) %>%
   mutate(s.median_waiting_time=arm::rescale(median_waiting_time)) %>%
   mutate(s.duration=arm::rescale(duration)) %>%
-  mutate(s.Number_of_days_sampled=rescale(Number_of_days_sampled)) %>%
-  mutate(s.days_since=rescale(days_since)) %>%
-  mutate(s.dist_km_nn=rescale(dist_km_nn)) %>%
-  mutate(s.neighbor_waiting_time=rescale(neighbor_waiting_time))
+  mutate(s.Number_of_days_sampled=arm::rescale(Number_of_days_sampled)) %>%
+  mutate(s.days_since=arm::rescale(days_since)) %>%
+  mutate(s.dist_km_nn=arm::rescale(dist_km_nn)) %>%
+  mutate(s.neighbor_waiting_time=arm::rescale(log(neighbor_waiting_time)))%>%
+  mutate(l.s.median_waiting_time=arm::rescale(log(median_waiting_time))) %>%
+  mutate(l.s.duration=arm::rescale(log(duration))) %>%
+  mutate(l.s.Number_of_days_sampled=arm::rescale(log(Number_of_days_sampled))) %>%
+  mutate(l.s.days_since=arm::rescale(log(days_since))) %>%
+  mutate(l.s.dist_km_nn=arm::rescale(log(dist_km_nn))) %>%
+  mutate(l.s.neighbor_waiting_time=arm::rescale(log(neighbor_waiting_time)))
+
+hist(analysis_data$DATE_dfbetas, breaks=30)
+
+hist(log(analysis_data$DATE_dfbetas), breaks=30)
 
 # look at correlation among predictor variables
 cor_object5 <- analysis_data %>%
@@ -204,18 +212,18 @@ ggsave(filename="Figures/param_estimates.png", width=6, height=5, units="in")
 
 # explore visreg plots
 par(mfrow=c(2, 2))
-visreg(standard5, "z.median_waiting_time")
-visreg(standard10, "z.median_waiting_time")
-visreg(standard25, "z.median_waiting_time")
-visreg(standard50, "z.median_waiting_time")
+visreg(mod5, "s.median_waiting_time")
+visreg(mod10, "s.median_waiting_time")
+visreg(mod25, "s.median_waiting_time")
+visreg(mod50, "s.median_waiting_time")
 
 
 
 par(mfrow=c(2, 2))
-visreg(standard5, "z.days_since")
-visreg(standard10, "z.days_since")
-visreg(standard25, "z.days_since")
-visreg(standard50, "z.days_since")
+visreg(mod5, "s.days_since")
+visreg(mod10, "s.days_since")
+visreg(mod25, "s.days_since")
+visreg(mod50, "s.days_since")
 
 
 
@@ -229,12 +237,179 @@ saveRDS(mod50, file="Data/Modelling data/model_50_km_object.RDS")
 
 
 
+# repeat the above but with the log transformed and then stanardized
+# response variables
+# 5 km grid
+analysis_data.5 <- analysis_data %>% dplyr::filter(grid_size==5)
+
+mod5.l <- lm(log(DATE_dfbetas) ~ l.s.median_waiting_time + l.s.Number_of_days_sampled +
+             l.s.days_since + l.s.dist_km_nn + l.s.neighbor_waiting_time, data=analysis_data.5)
+
+par(mfrow=c(2, 2))
+plot(mod5.l)
+
+summary(mod5.l)
+anova(mod5.l)
+
+
+estimates_5.l <- as.data.frame(mod5.l$coefficients) %>%
+  rownames_to_column(var="params") %>%
+  rename(standard_estimate = `mod5.l$coefficients`) %>%
+  mutate(lwr_conf=as.data.frame(confint(mod5.l))[,1]) %>%
+  mutate(upr_conf=as.data.frame(confint(mod5.l))[,2]) %>%
+  mutate(p_value=summary(mod5.l)$coefficients[,4]) %>%
+  mutate(grid_size=5)
+
+
+# 10 km grid
+analysis_data.10 <- analysis_data %>% dplyr::filter(grid_size==10)
+
+mod10.l <- lm(log(DATE_dfbetas) ~ l.s.median_waiting_time + l.s.Number_of_days_sampled +
+               l.s.days_since + l.s.dist_km_nn + l.s.neighbor_waiting_time, data=analysis_data.10)
+
+par(mfrow=c(2, 2))
+plot(mod10.l)
+
+summary(mod10.l)
+anova(mod10.l)
+
+
+estimates_10.l <- as.data.frame(mod10.l$coefficients) %>%
+  rownames_to_column(var="params") %>%
+  rename(standard_estimate = `mod10.l$coefficients`) %>%
+  mutate(lwr_conf=as.data.frame(confint(mod10.l))[,1]) %>%
+  mutate(upr_conf=as.data.frame(confint(mod10.l))[,2]) %>%
+  mutate(p_value=summary(mod10.l)$coefficients[,4]) %>%
+  mutate(grid_size=10)
+
+# 25 km grid
+analysis_data.25 <- analysis_data %>% dplyr::filter(grid_size==25)
+mod25.l <- lm(log(DATE_dfbetas) ~ l.s.median_waiting_time + l.s.Number_of_days_sampled +
+               l.s.days_since + l.s.dist_km_nn + l.s.neighbor_waiting_time, data=analysis_data.25)
+
+par(mfrow=c(2, 2))
+plot(mod25.l)
+
+summary(mod25.l)
+anova(mod25.l)
+
+
+estimates_25.l <- as.data.frame(mod25.l$coefficients) %>%
+  rownames_to_column(var="params") %>%
+  rename(standard_estimate = `mod25.l$coefficients`) %>%
+  mutate(lwr_conf=as.data.frame(confint(mod25.l))[,1]) %>%
+  mutate(upr_conf=as.data.frame(confint(mod25.l))[,2]) %>%
+  mutate(p_value=summary(mod25.l)$coefficients[,4]) %>%
+  mutate(grid_size=25)
+
+# 50 km grid
+analysis_data.50 <- analysis_data %>% dplyr::filter(grid_size==50)
+mod50.l <- lm(log(DATE_dfbetas) ~ l.s.median_waiting_time + l.s.Number_of_days_sampled +
+               l.s.days_since + l.s.dist_km_nn, data=analysis_data.50)
+
+par(mfrow=c(2, 2))
+plot(mod50.l)
+
+summary(mod50.l)
+anova(mod50.l)
+
+
+estimates_50.l <- as.data.frame(mod50.l$coefficients) %>%
+  rownames_to_column(var="params") %>%
+  rename(standard_estimate = `mod50.l$coefficients`) %>%
+  mutate(lwr_conf=as.data.frame(confint(mod50.l))[,1]) %>%
+  mutate(upr_conf=as.data.frame(confint(mod50.l))[,2]) %>%
+  mutate(p_value=summary(mod50.l)$coefficients[,4]) %>%
+  mutate(grid_size=50)
+
+
+param_new_names <- data.frame(params=c("(Intercept)", "l.s.median_waiting_time", "l.s.days_since", 
+                                       "l.s.Number_of_days_sampled", "l.s.dist_km_nn", "l.s.neighbor_waiting_time"),
+                              new_names=c("Intercept", "Median sampling interval", "Days since last sample", 
+                                          "Number of unique days sampled", "Distance to nearest sampled grid (km)", 
+                                          "Nearest neighbor sampling interval"))
+# plot standardized parameter estimates
+bind_rows(estimates_5.l, estimates_10.l, estimates_25.l, estimates_50.l) %>%
+  mutate(significant=case_when(
+    p_value < 0.5 ~ "Significant",
+    p_value > 0.5 ~ "Not-significant"
+  )) %>%
+  left_join(., param_new_names, by="params") %>%
+  dplyr::filter(new_names != "Intercept") %>%
+  ggplot(., aes(x=new_names, y=standard_estimate))+
+  geom_hline(yintercept=0, color="red", size=1.2)+
+  geom_errorbar(aes(ymin=lwr_conf, ymax=upr_conf, width=0.3))+
+  geom_point()+
+  scale_x_discrete(labels=function(x) stringr::str_wrap(x, width=20))+
+  coord_flip()+
+  facet_wrap(~grid_size)+
+  theme_bw()+
+  xlab("")+
+  ylab("Standardized parameter estimate")+
+  theme(axis.text=element_text(color="black"))+
+  theme(axis.ticks=element_line(color="black"))+
+  theme(panel.grid.major.y=element_blank())
+
+
+par(mfrow=c(2, 2))
+visreg(mod5.l, "l.s.days_since")
+visreg(mod10.l, "l.s.days_since")
+visreg(mod25.l, "l.s.days_since")
+visreg(mod50.l, "l.s.days_since")
+
+par(mfrow=c(2, 2))
+visreg(mod5.l, "l.s.median_waiting_time")
+visreg(mod10.l, "l.s.median_waiting_time")
+visreg(mod25.l, "l.s.median_waiting_time")
+visreg(mod50.l, "l.s.median_waiting_time")
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# test a simpler model to look for any stronger trends.
+mod5.2 <- lm(log(DATE_dfbetas) ~ s.days_since + s.dist_km_nn , data=analysis_data.5)
+
+par(mfrow=c(2, 2))
+plot(mod5.2)
+
+summary(mod5.2)
+
+mod10.2 <- lm(log(DATE_dfbetas) ~ s.days_since + s.dist_km_nn , data=analysis_data.10)
+
+par(mfrow=c(2, 2))
+plot(mod10.2)
+
+summary(mod10.2)
+
+
+mod25.2 <- lm(log(DATE_dfbetas) ~ s.days_since + s.dist_km_nn , data=analysis_data.25)
+
+par(mfrow=c(2, 2))
+plot(mod25.2)
+
+summary(mod25.2)
+
+mod50.2 <- lm(log(DATE_dfbetas) ~ s.days_since + s.dist_km_nn , data=analysis_data.50)
+
+par(mfrow=c(2, 2))
+plot(mod50.2)
+
+summary(mod50.2)
 
 
 
