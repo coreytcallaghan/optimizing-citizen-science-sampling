@@ -365,7 +365,11 @@ visreg(mod50.l, "l.s.median_waiting_time")
 
 
 
-
+# write out each model object
+saveRDS(mod5.l, file="Data/Modelling data/model_5.l_km_object.RDS")
+saveRDS(mod10.l, file="Data/Modelling data/model_10.l_km_object.RDS")
+saveRDS(mod25.l, file="Data/Modelling data/model_25.l_km_object.RDS")
+saveRDS(mod50.l, file="Data/Modelling data/model_50.l_km_object.RDS")
 
 
 
