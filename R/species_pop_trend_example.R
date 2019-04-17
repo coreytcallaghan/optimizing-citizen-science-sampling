@@ -399,7 +399,7 @@ for (i in unique(as.character(as.Date(date_sequence2$OBSERVATION_DATE)))) {
     theme(axis.ticks=element_line(color="black"))+
     theme(panel.grid.major.y=element_blank())
   
-  ggsave(filename = paste0("C:/Users/CTC/Desktop/gif_species/", i, ".png"))
+  ggsave(filename = paste0("C:/Users/CTC/Desktop/gif_species/", i, ".png"), height=4.8, width=6.2, units="in", dpi=150)
   
 }
 
