@@ -3,7 +3,7 @@ library(tidyverse)
 library(arm)
 library(tidyr)
 
-load("Data/Modelling data/model_5_km_object.RData")
+mod_examp <- readRDS("Data/Modelling data/model_5.l_km_object.RDS")
 
 oneday <- readRDS("Data/Sampling dates 2018/5 km/2018-12-31.RDS")
 
@@ -16,24 +16,24 @@ add_dfbeta <- function(grid_size, date){
   # scale the df, according to how the
   # dataframe for modelling was scaled
   df2 <- df %>%
-    mutate(s.median_waiting_time=arm::rescale(median_waiting_time)) %>%
-    mutate(s.duration=arm::rescale(duration)) %>%
-    mutate(s.Number_of_days_sampled=rescale(Number_of_days_sampled)) %>%
-    mutate(s.days_since=rescale(days_since)) %>%
-    mutate(s.dist_km_nn=rescale(dist_km_nn)) %>%
-    mutate(s.neighbor_waiting_time=rescale(neighbor_waiting_time)) %>%
+    mutate(l.s.median_waiting_time=arm::rescale(log(median_waiting_time))) %>%
+    mutate(l.s.duration=arm::rescale(log(duration))) %>%
+    mutate(l.s.Number_of_days_sampled=arm::rescale(log(Number_of_days_sampled))) %>%
+    mutate(l.s.days_since=arm::rescale(log(days_since))) %>%
+    mutate(l.s.dist_km_nn=arm::rescale(log(dist_km_nn))) %>%
+    mutate(l.s.neighbor_waiting_time=arm::rescale(log(neighbor_waiting_time))) %>%
   # fill in the NA values for each of these variables
   # necessary for predicting. Fill in with mean of that column
     replace_na(list(
-      s.median_waiting_time=mean(.$s.median_waiting_time, na.rm=TRUE),
-      s.duration=mean(.$s.duration, na.rm=TRUE),
-      s.Number_of_days_sampled=mean(.$s.Number_of_days_sampled, na.rm=TRUE),
-      s.days_since=mean(.$s.days_since, na.rm=TRUE),
-      s.dist_km_nn=mean(.$s.dist_km_nn, na.rm=TRUE),
-      s.neighbor_waiting_time=mean(.$s.neighbor_waiting_time, na.rm=TRUE)
+      l.s.median_waiting_time=mean(.$l.s.median_waiting_time, na.rm=TRUE),
+      l.s.duration=mean(.$l.s.duration, na.rm=TRUE),
+      l.s.Number_of_days_sampled=mean(.$l.s.Number_of_days_sampled, na.rm=TRUE),
+      l.s.days_since=mean(.$l.s.days_since, na.rm=TRUE),
+      l.s.dist_km_nn=mean(.$l.s.dist_km_nn, na.rm=TRUE),
+      l.s.neighbor_waiting_time=mean(.$l.s.neighbor_waiting_time, na.rm=TRUE)
       ))
   
-  model <- readRDS(paste0("Data/Modelling data/model_", grid_size, "_km_object.RDS"))
+  model <- readRDS(paste0("Data/Modelling data/model_", grid_size, ".l_km_object.RDS"))
   
   predicted_df <- augment(model, newdata = df2)
   
