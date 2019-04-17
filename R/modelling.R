@@ -208,7 +208,7 @@ bind_rows(estimates_5, estimates_10, estimates_25, estimates_50) %>%
   theme(panel.grid.major.y=element_blank())
 
 
-ggsave(filename="Figures/param_estimates.png", width=6, height=5, units="in")
+
 
 # explore visreg plots
 par(mfrow=c(2, 2))
@@ -350,6 +350,8 @@ bind_rows(estimates_5.l, estimates_10.l, estimates_25.l, estimates_50.l) %>%
   theme(axis.ticks=element_line(color="black"))+
   theme(panel.grid.major.y=element_blank())
 
+
+ggsave(filename="Figures/param_estimates.png", width=6, height=5, units="in")
 
 par(mfrow=c(2, 2))
 visreg(mod5.l, "l.s.days_since")
