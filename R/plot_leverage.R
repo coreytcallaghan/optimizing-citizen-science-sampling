@@ -58,7 +58,7 @@ ggplot()+
   theme(panel.grid.major=element_line(color="transparent"))+
   theme(axis.text=element_blank())+
   theme(axis.ticks=element_blank())+
-  scale_fill_gradientn(colours=pal, name="Value", trans="log")
+  scale_fill_gradientn(colours=plasma_pal, name="Value", trans="log")
   
 # potential figure for paper
 example_dates <- c("2018-01-01", "2018-03-01", "2018-05-01",
@@ -80,8 +80,8 @@ ggplot()+
   theme(axis.ticks=element_blank())+
   facet_wrap(~dynamic_date)+
   scale_fill_gradientn(colours=plasma_pal, name="Value", trans="log", 
-                       breaks=c(0.01, 0.05, 0.15, 0.5, 3, 25), labels=c(0.01, 0.05, 0.15, 0.5, 3, 25),
-                       limits=c(0.01, 30))
+                       breaks=c(0.004, 0.01, 0.02, 0.05, 0.15, 0.5), labels=c(0.004, 0.01, 0.02, 0.05, 0.15, 0.5),
+                       limits=c(0.003, 0.5))
 
 ggsave("Figures/example_maps.png", width=8, height=6, units="in")
 
@@ -106,8 +106,8 @@ for (i in dates_2018) {
     theme(axis.ticks=element_blank())+
     facet_wrap(~dynamic_date)+
     scale_fill_gradientn(colours=plasma_pal, name="Value", trans="log", 
-                         breaks=c(0.01, 0.05, 0.15, 0.5, 3, 25), labels=c(0.01, 0.05, 0.15, 0.5, 3, 25),
-                         limits=c(0.01, 30))
+                         breaks=c(0.003, 0.01, 0.02, 0.05, 0.15, 0.5), labels=c(0.003, 0.01, 0.02, 0.05, 0.15, 0.5),
+                         limits=c(0.003, 0.5))
   
   ggsave(plot, filename=paste0("C:/Users/CTC/Desktop/map_gif2/", i, ".png"), dpi=150)
 }
