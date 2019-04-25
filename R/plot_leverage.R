@@ -113,7 +113,33 @@ for (i in dates_2018) {
 }
 
 
+# plot the value through time for some example grids
+# this gives an additional figure and highlights the
+# 'dynamic' part of the paper a bit more
+sample_n_groups = function(tbl, size, replace = FALSE, weight=NULL) {
+  # regroup when done
+  grps = tbl %>% groups %>% unlist %>% as.character
+  # check length of groups non-zero
+  keep = tbl %>% summarise() %>% sample_n(size, replace, weight)
+  # keep only selected groups, regroup because joins change count.
+  # regrouping may be unnecessary but joins do something funky to grouping variable
+  tbl %>% semi_join(keep) %>% group_by_(grps) 
+}
 
+
+leverage_5 %>%
+  group_by(grid_id) %>%
+  sample_n_groups(10) %>%
+  ggplot(., aes(x=dynamic_date, y=Value, group=as.factor(grid_id), color=as.factor(grid_id)))+
+  geom_line()+
+  theme_bw()+
+  theme(axis.text=element_text(color="black"))+
+  theme(axis.title=element_text(color="black"))+
+  ylab("Marginal value")+
+  xlab("")+
+  labs(color="Grid ID")
+
+ggsave("Figures/example_grids_through_time.png", width=6.7, height=5, units="in")
 
 
 
