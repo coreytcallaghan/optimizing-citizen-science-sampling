@@ -89,8 +89,9 @@ max_date <- checklists_dates %>%
 date_sequence <- data.frame(OBSERVATION_DATE = seq.Date(min_date, max_date, by=1)) %>%
   mutate(DATE_CONTINUOUS=1:nrow(.))
 
+sampling_many_times <- function(run_number) {
 
-sampling_model_function <- function(N) {
+sampling_model_function <- function(percent) {
 
 species_model_function <- function(species) {
 
@@ -120,12 +121,16 @@ mod_data <- GS_observations %>%
   mutate(COUNTY = as.factor(as.character(.$COUNTY))) %>%
   mutate(LOCALITY_ID = as.factor(as.character(.$LOCALITY_ID))) %>%
   mutate(OBSERVER_ID = as.factor(as.character(.$OBSERVER_ID))) %>%
-  dplyr::filter(Number_species >=4) %>%
+  dplyr::filter(Number_species >=4) 
+
+N <- round(nrow(mod_data)*.01*percent, digits=0)
+
+mod_data2 <- mod_data %>%
   sample_n(N)
 
 
 mod <- glm(occurrence ~  DATE_CONTINUOUS + COUNTY + offset(Number_species),
-           family=binomial(link="logit"), data=mod_data)
+           family=binomial(link="logit"), data=mod_data2)
 
 summary_data <- data.frame(aic=mod$aic,
                            deviance=mod$deviance) %>%
@@ -133,7 +138,8 @@ summary_data <- data.frame(aic=mod$aic,
   mutate(unique_localities=length(unique(mod_data$LOCALITY_ID))) %>%
   mutate(number_of_observers=length(unique(mod_data$OBSERVER_ID))) %>%
   mutate(rsq=rsq(mod)) %>%
-  mutate(se_date=as.data.frame(summary(mod)$coefficients)[2][2,])
+  mutate(slope_date=as.data.frame(summary(mod)$coefficients)[1][2,]) %>%
+  mutate(mod_converged=mod$converged)
 
 return(summary_data)
 
@@ -148,21 +154,27 @@ list_of_species <- species_N %>%
   dplyr::filter(N>100) %>%
   .$COMMON_NAME
 
-list_of_model_results <- parallel::mclapply(list_of_species[1:3], function(x) {species_model_function(x)})
+list_of_model_results <- parallel::mclapply(list_of_species[1:2], function(x) {species_model_function(x)})
 
 df_results <- bind_rows(list_of_model_results) %>%
-  mutate(number_of_samples=N)
+  mutate(percent_of_sample=percent)
 
 }
 
 
-sample_size = seq(1000, 25000, by=1000)
+sample_size = seq(10, 100, by=5)
 
 list_of_models <- parallel::mclapply(sample_size, function(x) {sampling_model_function(x)})
 
-test <- bind_rows(list_of_models)
+mid_level_results <- bind_rows(list_of_models) %>%
+  mutate(permutation=run_number)
 
-ggplot(test, aes(x=number_of_samples, y=se_date, group=COMMON_NAME))+
-  geom_point()+
-  geom_smooth()+
-  scale_y_log10()
+}
+
+
+list_of_runs <- c(1:10)
+
+final_results <- lapply(list_of_runs, function(x) {sampling_many_times(x)})
+
+dataframe_of_results <- bind_rows(final_results)
+
