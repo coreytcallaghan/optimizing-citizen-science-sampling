@@ -148,13 +148,15 @@ return(summary_data)
 species_N <- GS_observations %>%
   group_by(SCIENTIFIC_NAME) %>%
   summarise(N=n()) %>%
-  left_join(., select(rename(clements, SCIENTIFIC_NAME = `scientific name`), COMMON_NAME, SCIENTIFIC_NAME), by="SCIENTIFIC_NAME")
+  left_join(., select(rename(clements, SCIENTIFIC_NAME = `scientific name`), COMMON_NAME, SCIENTIFIC_NAME), by="SCIENTIFIC_NAME") %>%
+  arrange(desc(N))
 
 list_of_species <- species_N %>%
   dplyr::filter(N>100) %>%
+  slice(1:10) %>%
   .$COMMON_NAME
 
-list_of_model_results <- parallel::mclapply(list_of_species[1:2], function(x) {species_model_function(x)})
+list_of_model_results <- parallel::mclapply(list_of_species, function(x) {species_model_function(x)})
 
 df_results <- bind_rows(list_of_model_results) %>%
   mutate(percent_of_sample=percent)
@@ -169,12 +171,14 @@ list_of_models <- parallel::mclapply(sample_size, function(x) {sampling_model_fu
 mid_level_results <- bind_rows(list_of_models) %>%
   mutate(permutation=run_number)
 
+saveRDS(mid_level_results, paste0("Data/permutation_sensitivity/top_ten_species/", run_number, ".RDS"))
+
 }
 
 
-list_of_runs <- c(1:10)
+list_of_runs <- c(1:100)
 
-final_results <- lapply(list_of_runs, function(x) {sampling_many_times(x)})
+final_results <- parallel::mclapply(list_of_runs[1:50], function(x) {sampling_many_times(x)})
 
 dataframe_of_results <- bind_rows(final_results)
 
