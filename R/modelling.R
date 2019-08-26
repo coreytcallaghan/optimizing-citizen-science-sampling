@@ -26,6 +26,37 @@ analysis_data <- params %>%
     )
 
 
+# start with some very simple linear models
+# see whether or not a grid was sampled is important
+mod1 <- lm(log(DATE_dfbetas) ~ sampled, data=filter(analysis_data, grid_size==5))
+
+par(mfrow=c(2, 2))
+plot(mod1)
+
+summary(mod1)
+
+mod2 <- lm(log(DATE_dfbetas) ~ sampled, data=filter(analysis_data, grid_size==10))
+
+par(mfrow=c(2, 2))
+plot(mod2)
+
+summary(mod2)
+
+mod3 <- lm(log(DATE_dfbetas) ~ sampled, data=filter(analysis_data, grid_size==25))
+
+par(mfrow=c(2, 2))
+plot(mod3)
+
+summary(mod3)
+
+mod_dat_initial <- analysis_data %>%
+  dplyr::filter(grid_size != 50)
+
+sampled_important_or_not_mod <- lm(log(DATE_dfbetas) ~ sampled + grid_size, data=mod_dat_initial)
+summary(sampled_important_or_not_mod)
+
+
+
 # make df for modelling
 # rescale variables
 analysis_data <- analysis_data %>%
@@ -58,6 +89,8 @@ cor_object5 <- analysis_data %>%
 ggcorrplot(cor(na.omit(cor_object5[2:7])))+
   ggtitle("5 km grid size")
 
+ggsave("Figures/5_km_correlation.png", width=6, height=5, units="in")
+
 # look at correlation among predictor variables
 cor_object10 <- analysis_data %>%
   dplyr::filter(grid_size==10) %>%
@@ -67,6 +100,8 @@ cor_object10 <- analysis_data %>%
 
 ggcorrplot(cor(na.omit(cor_object10[2:7])))+
   ggtitle("10 km grid size")
+
+ggsave("Figures/10_km_correlation.png", width=6, height=5, units="in")
 
 
 # look at correlation among predictor variables
@@ -79,6 +114,8 @@ cor_object25 <- analysis_data %>%
 ggcorrplot(cor(na.omit(cor_object25[2:7])))+
   ggtitle("25 km grid size")
 
+ggsave("Figures/25_km_correlation.png", width=6, height=5, units="in")
+
 
 # look at correlation among predictor variables
 cor_object50 <- analysis_data %>%
@@ -89,6 +126,8 @@ cor_object50 <- analysis_data %>%
 
 ggcorrplot(cor(na.omit(cor_object50[2:6])))+
   ggtitle("50 km grid size")
+
+ggsave("Figures/50_km_correlation.png", width=6, height=5, units="in")
 
 
 
@@ -425,14 +464,7 @@ summary(mod50.2)
 
 
 
-# start with some very simple linear models
-# see whether or not a grid was sampled is important
-mod <- lm(log(DATE_dfbetas) ~ sampled, data=filter(analysis_data, grid_size==5))
 
-par(mfrow=c(2, 2))
-plot(mod)
-
-summary(mod)
 
 
 

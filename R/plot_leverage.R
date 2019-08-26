@@ -83,7 +83,7 @@ ggplot()+
                        breaks=c(0.004, 0.01, 0.02, 0.05, 0.15, 0.5), labels=c(0.004, 0.01, 0.02, 0.05, 0.15, 0.5),
                        limits=c(0.003, 0.5))
 
-ggsave("Figures/example_maps.png", width=8, height=6, units="in")
+ggsave("Figures/example_maps.png", width=6.7, height=5, units="in")
 
 # write a for loop to export figures to make a gif
 dates_2018 <- seq.Date(as.Date("2018-01-01"), as.Date("2018-12-31"), by=1)
