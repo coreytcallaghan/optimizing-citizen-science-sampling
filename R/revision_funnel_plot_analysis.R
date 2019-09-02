@@ -63,17 +63,19 @@ species_best_estimate1 <- group1 %>%
 # append these slope estimates to the dataframe
 difference_df1 <- group1 %>%
   left_join(., species_best_estimate1, by="COMMON_NAME") %>%
+  mutate(relative_difference=mean_best_estimate-slope_date) %>%
   mutate(absolute_difference=abs(mean_best_estimate-slope_date))
 
 
-ggplot(difference_df1, aes(x=percent_of_sample, y=absolute_difference))+
+ggplot(difference_df1, aes(x=percent_of_sample, y=relative_difference))+
   geom_jitter(col="grey",alpha=0.4)+
   facet_wrap(~COMMON_NAME, ncol=2)+
+  ylim(-0.005, 0.003)+
   theme_classic()+
   theme(axis.text=element_text(color="black"))+
   ylab("Difference from best slope estimate")+
   xlab("Percentage of total possible checklists")+
-  geom_quantile(quantiles=0.9, method="rqss",formula=y ~ qss(x, lambda = 10))
+  geom_quantile(quantiles=c(0.05,0.95))
 
 ggsave("Figures/slope_difference_1.png", width=6, height=8, units="in")
 
@@ -130,17 +132,19 @@ species_best_estimate2 <- group2 %>%
 # append these slope estimates to the dataframe
 difference_df2 <- group2 %>%
   left_join(., species_best_estimate2, by="COMMON_NAME") %>%
+  mutate(relative_difference=mean_best_estimate-slope_date) %>%
   mutate(absolute_difference=abs(mean_best_estimate-slope_date))
 
 
-ggplot(difference_df2, aes(x=percent_of_sample, y=absolute_difference))+
+ggplot(difference_df2, aes(x=percent_of_sample, y=relative_difference))+
   geom_jitter(col="grey",alpha=0.4)+
   facet_wrap(~COMMON_NAME, ncol=2)+
+  ylim(-0.005, 0.003)+
   theme_classic()+
   theme(axis.text=element_text(color="black"))+
   ylab("Difference from best slope estimate")+
   xlab("Percentage of total possible checklists")+
-  geom_quantile(quantiles=0.9, method="rqss",formula=y ~ qss(x, lambda = 10))
+  geom_quantile(quantiles=c(0.05,0.95))
 
 ggsave("Figures/slope_difference_2.png", width=6, height=8, units="in")
 
@@ -198,17 +202,19 @@ species_best_estimate3 <- group3 %>%
 # append these slope estimates to the dataframe
 difference_df3 <- group3 %>%
   left_join(., species_best_estimate3, by="COMMON_NAME") %>%
+  mutate(relative_difference=mean_best_estimate-slope_date) %>%
   mutate(absolute_difference=abs(mean_best_estimate-slope_date))
 
 
-ggplot(difference_df3, aes(x=percent_of_sample, y=absolute_difference))+
+ggplot(difference_df3, aes(x=percent_of_sample, y=relative_difference))+
   geom_jitter(col="grey",alpha=0.4)+
   facet_wrap(~COMMON_NAME, ncol=2)+
+  ylim(-0.005, 0.003)+
   theme_classic()+
   theme(axis.text=element_text(color="black"))+
   ylab("Difference from best slope estimate")+
   xlab("Percentage of total possible checklists")+
-  geom_quantile(quantiles=0.9, method="rqss",formula=y ~ qss(x, lambda = 10))
+  geom_quantile(quantiles=c(0.05,0.95))
 
 ggsave("Figures/slope_difference_3.png", width=6, height=8, units="in")
 
@@ -265,17 +271,19 @@ species_best_estimate4 <- group4 %>%
 # append these slope estimates to the dataframe
 difference_df4 <- group4 %>%
   left_join(., species_best_estimate4, by="COMMON_NAME") %>%
+  mutate(relative_difference=mean_best_estimate-slope_date) %>%
   mutate(absolute_difference=abs(mean_best_estimate-slope_date))
 
 
-ggplot(difference_df4, aes(x=percent_of_sample, y=absolute_difference))+
+ggplot(difference_df4, aes(x=percent_of_sample, y=relative_difference))+
   geom_jitter(col="grey",alpha=0.4)+
   facet_wrap(~COMMON_NAME, ncol=2)+
+  ylim(-0.005, 0.003)+
   theme_classic()+
   theme(axis.text=element_text(color="black"))+
   ylab("Difference from best slope estimate")+
   xlab("Percentage of total possible checklists")+
-  geom_quantile(quantiles=0.9, method="rqss",formula=y ~ qss(x, lambda = 10))
+  geom_quantile(quantiles=c(0.05,0.95))
 
 ggsave("Figures/slope_difference_4.png", width=6, height=8, units="in")
 
@@ -332,17 +340,19 @@ species_best_estimate5 <- group5 %>%
 # append these slope estimates to the dataframe
 difference_df5 <- group5 %>%
   left_join(., species_best_estimate5, by="COMMON_NAME") %>%
+  mutate(relative_difference=mean_best_estimate-slope_date) %>%
   mutate(absolute_difference=abs(mean_best_estimate-slope_date))
 
 
-ggplot(difference_df5, aes(x=percent_of_sample, y=absolute_difference))+
+ggplot(difference_df5, aes(x=percent_of_sample, y=relative_difference))+
   geom_jitter(col="grey",alpha=0.4)+
   facet_wrap(~COMMON_NAME, ncol=2)+
+  ylim(-0.005, 0.003)+
   theme_classic()+
   theme(axis.text=element_text(color="black"))+
   ylab("Difference from best slope estimate")+
   xlab("Percentage of total possible checklists")+
-  geom_quantile(quantiles=0.9, method="rqss",formula=y ~ qss(x, lambda = 10))
+  geom_quantile(quantiles=c(0.05,0.95))
 
 ggsave("Figures/slope_difference_5.png", width=6, height=8, units="in")
 
