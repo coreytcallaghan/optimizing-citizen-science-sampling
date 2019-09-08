@@ -2,6 +2,7 @@
 # also filtered to get rid of 'bad' checklists
 # it takes a long time for these filtering of the MariaDB to be done
 # so go get a coffee or something (or a beer!!)
+# This won't work unless you have access to the MariaDB
 
 library(sf)
 library(dbplyr)

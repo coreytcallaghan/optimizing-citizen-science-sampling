@@ -5,7 +5,7 @@
 library(ggplot2)
 library(dplyr)
 
-lev <- readRDS("Data/leverage_results.RDS")
+lev <- readRDS("Data/Modelling data/leverage_results.RDS")
 
 # date versus leverage
 ggplot(lev, aes(x=OBSERVATION_DATE, y=DATE_dfbetas))+
